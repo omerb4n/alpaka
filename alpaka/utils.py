@@ -1,6 +1,8 @@
 import os
+import re
 import shutil
 import subprocess
+from typing import List
 
 from alpaka.colors import bcolors
 
@@ -37,3 +39,11 @@ def extract_apk(apk_path, output_path):
 
 def filter_dict(dictionary: dict, filter_function):
     return {k: v for k, v in dictionary.items() if filter_function(k, v)}
+
+
+def calc_average(l: List):
+    return sum(l) / len(l)
+
+
+def split_by_uppercase(concatenated_words: str):
+    return re.findall('[A-Z][^A-Z]*', concatenated_words)
