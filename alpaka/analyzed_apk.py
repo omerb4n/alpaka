@@ -47,12 +47,12 @@ class AnalyzedApk:
         if self._session_path:
             sess = get_default_session()
             try:
-                self._get_analysis_from_session()
+                return self._get_analysis_from_session()
             except SessionNotFoundError:
                 # Analyze the apk and save the session
                 pass
 
-        analayzed_apk = AnalyzeAPK(self._path, session=sess)
+        apk_analysis = AnalyzeAPK(self._path, session=sess)
         if sess:
             session.Save(sess, self._session_path)
-        return analayzed_apk
+        return apk_analysis
