@@ -78,10 +78,10 @@ class WordScore(ScoreSystem):
     CHARACTERS_WEIGHT = 0.3 * ScoreSystem.MAXIMUM_SCORE
 
     BEST_LENGTH = 15
-    WORST_LENGTH = 4
+    WORST_LENGTH = 3
     LENGTH_SCORE_GROWTH = ScoreSystem.MAXIMUM_SCORE / BEST_LENGTH ** 2
 
-    DEFAULT_PASS_SCORE = 0.5
+    DEFAULT_PASS_SCORE = 0.5 * ScoreSystem.MAXIMUM_SCORE
 
     def __init__(self, pass_score=DEFAULT_PASS_SCORE):
         super(WordScore, self).__init__(pass_score)
@@ -111,10 +111,10 @@ class UpperCamelCaseScore(ScoreSystem):
     WORST_WORDS_COUNT = 1
     WORDS_COUNT_GROWTH = ScoreSystem.MAXIMUM_SCORE / BEST_WORDS_COUNT ** 2
 
-    WORDS_AVERAGE_SCORE_WEIGHT = 0.8
-    WORDS_COUNT_SCORE_WEIGHT = 0.2
+    WORDS_AVERAGE_SCORE_WEIGHT = 0.8 * ScoreSystem.MAXIMUM_SCORE
+    WORDS_COUNT_SCORE_WEIGHT = 0.2 * ScoreSystem.MAXIMUM_SCORE
 
-    DEFAULT_PASS_SCORE = 0.4
+    DEFAULT_PASS_SCORE = 0.4 * ScoreSystem.MAXIMUM_SCORE
 
     def __init__(self, pass_score=DEFAULT_PASS_SCORE):
         super(UpperCamelCaseScore, self).__init__(pass_score)
