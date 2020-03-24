@@ -65,8 +65,5 @@ class GradeSystem(ScoreSystem):
 
 
 class ObfuscationDetector(abc.ABC):
-    def __init__(self, grade_system: GradeSystem):
-        self.grade_system = grade_system
-
-    def is_obfuscated(self, obj):
-        return not self.grade_system.did_pass(obj)
+    def is_obfuscated(self, obj) -> bool:
+        raise NotImplementedError()
