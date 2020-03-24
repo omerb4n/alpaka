@@ -1,12 +1,12 @@
 import re
 import string
-from typing import Sized, Sequence
+from typing import Sized, Sequence, List
 
 import enchant
 
 from alpaka.exceptions import FormatError
 from alpaka.obfuscation.types import ScoreSystem, ScoreWeight, GradeSystem, ObfuscationDetector
-from alpaka.utils import calc_average, split_by_uppercase
+from alpaka.utils import calc_average, split_by_separators
 
 
 class GrowthScoreSystem(ScoreSystem):
@@ -40,8 +40,12 @@ class LengthScore(GrowthScoreSystem):
 
 
 class CharactersScore(ScoreSystem):
+    def __init__(self, allowed_characters: List[str]):
+        self._allowed_characters = allowed_characters
+        super(CharactersScore, self).__init__()
+
     def _calc_score(self, word):
-        if all([char in string.ascii_letters for char in word]):
+        if all([char in self._allowed_characters for char in word]):
             return self.MAXIMUM_SCORE
         else:
             return self.MINIMUM_SCORE
@@ -60,16 +64,64 @@ class UpperCamelCaseGrade(GradeSystem):
     def _calc_score(self, upper_camel_case_text):
         if upper_camel_case_text[0] not in string.ascii_uppercase:
             raise FormatError(f"'{upper_camel_case_text}' does not meet the UpperCamelCase convention")
-        upper_camel_case_words = split_by_uppercase(upper_camel_case_text)
+        upper_camel_case_words = split_by_separators(upper_camel_case_text, string.ascii_uppercase)
         return super(UpperCamelCaseGrade, self)._calc_score(upper_camel_case_words)
 
 
-class ClassNameGrade(GradeSystem):
-    def did_pass(self, class_name):
-        try:
-            return super(ClassNameGrade, self).did_pass(class_name)
-        except FormatError:
-            return WordObfuscationDetector().grade_system.did_pass(class_name)
+class UnderscoreNameGrade(GradeSystem):
+    def _calc_score(self, underscore_name):
+        underscore_split = underscore_name.split('_')
+        return super(UnderscoreNameGrade, self)._calc_score(underscore_split)
+
+
+class PackageNameObfuscationDetector(ObfuscationDetector):
+    # Word length score
+    WORD_BEST_LENGTH = 8
+    WORD_WORST_LENGTH = 2
+    WORD_LENGTH_SCORE_GROWTH = ScoreSystem.MAXIMUM_SCORE / WORD_BEST_LENGTH ** 2
+
+    # Word grade score weights
+    WORD_LENGTH_WEIGHT = 0.4
+    IS_WORD_ENGLISH_WEIGHT = 0.6
+
+    WORD_AVERAGE_WEIGHT = 0.9
+
+    # Words count score
+    BEST_WORDS_COUNT = 4
+    WORST_WORDS_COUNT = 1
+    WORDS_COUNT_GROWTH = ScoreSystem.MAXIMUM_SCORE / BEST_WORDS_COUNT ** 2
+
+    WORDS_COUNT_WEIGHT = 0.1
+
+    # Underscore score
+    UNDERSCORE_WEIGHT = 0.8
+
+    # Characters score
+    CHARACTERS_WEIGHT = 0.2
+
+    PASS_SCORE = 0.6
+
+    def __init__(self):
+        length_score_weight = ScoreWeight(
+            LengthScore(self.WORD_BEST_LENGTH, self.WORD_WORST_LENGTH, self.WORD_LENGTH_SCORE_GROWTH),
+            self.WORD_LENGTH_WEIGHT)
+        is_word_english_score_weight = ScoreWeight(IsWordEnglishScore(), self.IS_WORD_ENGLISH_WEIGHT)
+        average_score_score_weight = ScoreWeight(AverageScore(
+            GradeSystem([length_score_weight, is_word_english_score_weight])),
+            self.WORD_AVERAGE_WEIGHT)
+        word_count_score_weight = ScoreWeight(
+            LengthScore(self.BEST_WORDS_COUNT, self.WORST_WORDS_COUNT, self.WORDS_COUNT_GROWTH),
+            self.WORDS_COUNT_WEIGHT)
+        characters_score_weight = ScoreWeight(CharactersScore(list(string.ascii_letters) + ['_']), self.CHARACTERS_WEIGHT)
+
+        underscore_score_weight = ScoreWeight(
+            UnderscoreNameGrade([average_score_score_weight, word_count_score_weight]),
+            self.UNDERSCORE_WEIGHT)
+        self.grade_system = GradeSystem([underscore_score_weight, characters_score_weight],
+                                        self.PASS_SCORE)
+
+    def is_obfuscated(self, package_name: str):
+        return not self.grade_system.did_pass(package_name)
 
 
 class ClassNameObfuscationDetector(ObfuscationDetector):
@@ -86,17 +138,17 @@ class ClassNameObfuscationDetector(ObfuscationDetector):
     WORD_AVERAGE_WEIGHT = 0.9
 
     # Words count score
-    BEST_WORDS_COUNT = 4
+    BEST_WORDS_COUNT = 3
     WORST_WORDS_COUNT = 1
     WORDS_COUNT_GROWTH = ScoreSystem.MAXIMUM_SCORE / BEST_WORDS_COUNT ** 2
 
     WORDS_COUNT_WEIGHT = 0.1
 
     # UpperCamelCase score
-    UPPER_CAMEL_CASE_WEIGHT = 0.7
+    UPPER_CAMEL_CASE_WEIGHT = 0.9
 
     # Characters score
-    CHARACTERS_WEIGHT = 0.3
+    CHARACTERS_WEIGHT = 0.1
 
     PASS_SCORE = 0.6
 
@@ -111,19 +163,22 @@ class ClassNameObfuscationDetector(ObfuscationDetector):
         word_count_score_weight = ScoreWeight(
             LengthScore(self.BEST_WORDS_COUNT, self.WORST_WORDS_COUNT, self.WORDS_COUNT_GROWTH),
             self.WORDS_COUNT_WEIGHT)
-        characters_score_weight = ScoreWeight(CharactersScore(), self.CHARACTERS_WEIGHT)
+        characters_score_weight = ScoreWeight(CharactersScore(list(string.ascii_letters)), self.CHARACTERS_WEIGHT)
 
         upper_camel_case_score_weight = ScoreWeight(
             UpperCamelCaseGrade([average_score_score_weight, word_count_score_weight]), self.UPPER_CAMEL_CASE_WEIGHT)
-        super(ClassNameObfuscationDetector, self).__init__(
-            ClassNameGrade([upper_camel_case_score_weight, characters_score_weight], self.PASS_SCORE))
+        self.class_name_grade = GradeSystem([upper_camel_case_score_weight, characters_score_weight], self.PASS_SCORE)
 
-    def is_obfuscated(self, class_name):
+    def is_obfuscated(self, class_name: str):
         if self.is_known_obfuscated_pattern(class_name):
             return True
-        return super(ClassNameObfuscationDetector, self).is_obfuscated(class_name)
+        else:
+            try:
+                return not self.class_name_grade.did_pass(class_name)
+            except FormatError:
+                return WordObfuscationDetector().is_obfuscated(class_name)
 
-    def is_known_obfuscated_pattern(self, class_name) -> bool:
+    def is_known_obfuscated_pattern(self, class_name: str) -> bool:
         for regex in self.KNOWN_OBFUSCATED_PATTERNS:
             if re.search(regex, class_name):
                 return True
@@ -147,7 +202,9 @@ class WordObfuscationDetector(ObfuscationDetector):
         length_score_weight = ScoreWeight(
             LengthScore(self.BEST_LENGTH, self.WORST_LENGTH, self.LENGTH_SCORE_GROWTH), self.LENGTH_SCORE_WEIGHT)
         is_word_english_score_weight = ScoreWeight(IsWordEnglishScore(), self.IS_WORD_ENGLISH_SCORE_WEIGHT)
-        word_characters_score_weight = ScoreWeight(CharactersScore(), self.WORD_CHARACTERS_SCORE_WEIGHT)
-        super(WordObfuscationDetector, self).__init__(
-            GradeSystem([length_score_weight, is_word_english_score_weight, word_characters_score_weight],
-                        self.PASS_GRADE))
+        word_characters_score_weight = ScoreWeight(CharactersScore(list(string.ascii_letters)), self.WORD_CHARACTERS_SCORE_WEIGHT)
+        self.word_grade_system = GradeSystem(
+            [length_score_weight, is_word_english_score_weight, word_characters_score_weight], self.PASS_GRADE)
+
+    def is_obfuscated(self, word: str):
+        return not self.word_grade_system.did_pass(word)

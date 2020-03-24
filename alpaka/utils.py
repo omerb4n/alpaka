@@ -45,5 +45,12 @@ def calc_average(l: List):
     return sum(l) / len(l)
 
 
-def split_by_uppercase(concatenated_words: str):
-    return re.findall('[A-Z][^A-Z]*', concatenated_words)
+def split_by_separators(text: str, seperators: List[str]):
+    previous_word_index = 0
+    words = []
+    for i in range(1, len(text)):
+        if text[i] in seperators:
+            words.append(text[previous_word_index:i])
+            previous_word_index = i
+    words.append(text[previous_word_index:len(text)])
+    return words
