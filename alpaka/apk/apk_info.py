@@ -7,8 +7,11 @@ from alpaka.utils import filter_dict
 
 
 class ApkInfo:
-    def __init__(self, analyzed_apk: AnalyzedApk):
+    def __init__(self, analyzed_apk: AnalyzedApk, assume_obfuscated: bool = True,
+                 use_obfuscation_detectors: bool = True):
         self._analyzed_apk = analyzed_apk
+        self._assume_obfuscated = assume_obfuscated
+        self._use_obfuscation_detectors = use_obfuscation_detectors
         self._classes = self._analyzed_apk.analysis.classes
         self._packages: Optional[List[PackageInfo]] = None
 
@@ -22,9 +25,9 @@ class ApkInfo:
             package_name_prefix = PackageInfo.get_parent_package_name_prefix(class_analysis.name)
             package_name = PackageInfo.get_package_name(package_name_prefix)
             if package_name_prefix not in self._packages:
-                is_obfuscated = False
-                if package_name_obfuscation_detector.is_obfuscated(package_name):
-                    is_obfuscated = True
+                is_obfuscated = self._assume_obfuscated
+                if self._use_obfuscation_detectors:
+                    is_obfuscated = package_name_obfuscation_detector.is_obfuscated(package_name)
                 self._packages[package_name_prefix] = PackageInfo(package_name_prefix, is_obfuscated)
             self._packages[package_name_prefix].add_class(class_analysis.name)
 
