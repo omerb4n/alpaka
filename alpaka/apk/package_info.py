@@ -1,4 +1,5 @@
 NAME_SEPARATOR = '/'
+ROOT_PACKAGE = ''
 
 
 class PackageInfo:

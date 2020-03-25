@@ -1,7 +1,7 @@
 from typing import Optional, List
 
 from alpaka.apk.analyzed_apk import AnalyzedApk
-from alpaka.apk.package_info import PackageInfo
+from alpaka.apk.package_info import PackageInfo, ROOT_PACKAGE
 from alpaka.obfuscation.obfuscation import PackageNameObfuscationDetector
 from alpaka.utils import filter_dict
 
@@ -27,3 +27,9 @@ class ApkInfo:
                     is_obfuscated = True
                 self._packages[package_name_prefix] = PackageInfo(package_name_prefix, is_obfuscated)
             self._packages[package_name_prefix].add_class(class_analysis.name)
+
+    def get_packages(self):
+        if self._packages:
+            return self._packages
+        else:
+            return {ROOT_PACKAGE: self._classes}
