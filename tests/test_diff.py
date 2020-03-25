@@ -1,9 +1,8 @@
-import pytest
 import os
 
-from alpaka.analyzed_apk import AnalyzedApk
+from alpaka.apk.analyzed_apk import AnalyzedApk
 from alpaka.apk_differ import ApkDiffer
-from alpaka.apk_info import ApkInfo
+from alpaka.apk.apk_info import ApkInfo
 from tests.conftest import AG_SESSIONS_PATH, APKS_PATH
 
 TOAST_APKS_PATH = os.path.join(APKS_PATH, 'toastAPK')

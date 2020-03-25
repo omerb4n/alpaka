@@ -1,6 +1,6 @@
 from typing import Optional, List
 
-from alpaka.analyzed_apk import AnalyzedApk
+from alpaka.apk.analyzed_apk import AnalyzedApk
 from alpaka.obfuscation.obfuscation import PackageNameObfuscationDetector
 from alpaka.utils import filter_dict
 
@@ -25,7 +25,7 @@ class PackageInfo:
 
     @staticmethod
     def get_package_name(package_name_prefix):
-        return package_name_prefix[package_name_prefix.rfind(PackageInfo.NAME_SEPARATOR)+1:]
+        return package_name_prefix[package_name_prefix.rfind(PackageInfo.NAME_SEPARATOR) + 1:]
 
     def __repr__(self):
         return "~Obfuscated" if self.is_obfuscated_name else ""

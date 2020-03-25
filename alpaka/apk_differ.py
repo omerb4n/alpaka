@@ -1,5 +1,5 @@
-from alpaka.analyzed_apk import AnalyzedApk
-from alpaka.apk_info import ApkInfo
+from alpaka.apk.analyzed_apk import AnalyzedApk
+from alpaka.apk.apk_info import ApkInfo
 
 
 class ApkDiffer:
