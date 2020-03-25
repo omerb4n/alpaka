@@ -21,6 +21,8 @@ def test_class_name_obfuscation_detector():
     assert not is_obfuscated_func("hellofriend")
     # assert is_obfuscated_func("sdfgsjkosfsd")
     assert not is_obfuscated_func("NativePeer")
+    assert not is_obfuscated_func("ResultReceiver")
+    assert not is_obfuscated_func("IResultReceiver")
     # assert not is_obfuscated_func("IValue")
     assert is_obfuscated_func("R")
 

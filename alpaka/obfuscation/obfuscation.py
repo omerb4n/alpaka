@@ -163,7 +163,7 @@ class ClassNameObfuscationDetector(ObfuscationDetector):
         word_count_score_weight = ScoreWeight(
             LengthScore(self.BEST_WORDS_COUNT, self.WORST_WORDS_COUNT, self.WORDS_COUNT_GROWTH),
             self.WORDS_COUNT_WEIGHT)
-        characters_score_weight = ScoreWeight(CharactersScore(list(string.ascii_letters)), self.CHARACTERS_WEIGHT)
+        characters_score_weight = ScoreWeight(CharactersScore(list(string.ascii_letters) + ['$']), self.CHARACTERS_WEIGHT)
 
         upper_camel_case_score_weight = ScoreWeight(
             UpperCamelCaseGrade([average_score_score_weight, word_count_score_weight]), self.UPPER_CAMEL_CASE_WEIGHT)

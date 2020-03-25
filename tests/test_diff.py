@@ -1,5 +1,7 @@
 import os
 
+from androguard.core.analysis.analysis import ClassAnalysis
+
 from alpaka.apk.analyzed_apk import AnalyzedApk
 from alpaka.apk_differ import ApkDiffer
 from alpaka.apk.apk_info import ApkInfo
@@ -13,8 +15,14 @@ TOAST_BYE_APK_PATH = os.path.join(TOAST_APKS_PATH, 'bye.apk')
 TOAST_BYE_SESSION_PATH = os.path.join(AG_SESSIONS_PATH, 'bye.ag')
 
 
-def my_filter(k: str, v):
+def myapplication_filter(k: str, v):
     if k.startswith('Lcom/example/myapplication'):
+        return True
+    return False
+
+
+def android_class_filter(_class_name_prefix: str, class_analysis: ClassAnalysis):
+    if class_analysis.is_android_api():
         return True
     return False
 
@@ -31,6 +39,7 @@ def diff(old_apk_path, old_apk_session_path, new_apk_path, new_apk_session_path)
 
 def test_apk_info():
     apk = ApkInfo(AnalyzedApk(TOAST_HELLO_APK_PATH, session_path=TOAST_HELLO_SESSION_PATH))
+    apk.filter_classes(android_class_filter)
     apk.pack()
     pass
 

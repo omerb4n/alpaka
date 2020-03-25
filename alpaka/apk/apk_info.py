@@ -1,8 +1,11 @@
 from typing import Optional, List
 
+from androguard.core.analysis.analysis import ClassAnalysis
+
 from alpaka.apk.analyzed_apk import AnalyzedApk
+from alpaka.apk.class_info import ClassInfo
 from alpaka.apk.package_info import PackageInfo, ROOT_PACKAGE
-from alpaka.obfuscation.obfuscation import PackageNameObfuscationDetector
+from alpaka.obfuscation.obfuscation import PackageNameObfuscationDetector, ClassNameObfuscationDetector
 from alpaka.utils import filter_dict
 
 
@@ -16,6 +19,7 @@ class ApkInfo:
         self._packages: Optional[List[PackageInfo]] = None
 
         self._package_name_obfuscation_detector = PackageNameObfuscationDetector()
+        self._class_name_obfuscation_detector = ClassNameObfuscationDetector()
 
     def filter_classes(self, class_filter):
         self._classes = filter_dict(self._analyzed_apk.analysis.classes, class_filter)
@@ -26,7 +30,8 @@ class ApkInfo:
             package_name_prefix = PackageInfo.get_parent_package_name_prefix(class_analysis.name)
             if package_name_prefix not in self._packages:
                 self._add_package(package_name_prefix)
-            self._packages[package_name_prefix].add_class(class_analysis.name)
+            class_info = self._create_class_info(class_analysis)
+            self._packages[package_name_prefix].add_class(class_info)
 
     def _add_package(self, package_name_prefix):
         is_obfuscated_name = self._assume_obfuscated
@@ -34,6 +39,13 @@ class ApkInfo:
             package_name = PackageInfo.get_package_name(package_name_prefix)
             is_obfuscated_name = self._package_name_obfuscation_detector.is_obfuscated(package_name)
         self._packages[package_name_prefix] = PackageInfo(package_name_prefix, is_obfuscated_name)
+
+    def _create_class_info(self, class_analysis: ClassAnalysis):
+        is_obfuscated_name = self._assume_obfuscated
+        if self._use_obfuscation_detectors:
+            class_name = ClassInfo.get_class_name(class_analysis.name)
+            is_obfuscated_name = self._class_name_obfuscation_detector.is_obfuscated(class_name)
+        return ClassInfo(class_analysis, is_obfuscated_name)
 
     def get_packages(self):
         if self._packages:
