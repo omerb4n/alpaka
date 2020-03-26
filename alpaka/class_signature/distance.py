@@ -1,5 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
+import simhash
+
 from alpaka.class_signature.signature import ClassSignature
 
 
@@ -46,9 +48,9 @@ class WeightedSignatureDistanceCalculator(SignatureDistanceCalculator):
             self.instructions_simhash_weight * self._hamming_distance(sig1.instructions_simhash, sig2.instructions_simhash),
         ))
 
-    def _hamming_distance(self, simhash1: int, simhash2: int) -> int:
+    @classmethod
+    def _hamming_distance(cls, simhash1: int, simhash2: int) -> int:
         """
         :return: the hamming distance between the 2 simhashes
         """
-        # todo: implement
-        pass
+        return simhash.num_differing_bits(simhash1, simhash2)
