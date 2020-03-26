@@ -61,7 +61,9 @@ class AverageScore(ScoreSystem):
 
 
 class UpperCamelCaseGrade(GradeSystem):
-    def _calc_score(self, upper_camel_case_text):
+    def _calc_score(self, upper_camel_case_text: str):
+        # Remove $ for Class name grade
+        upper_camel_case_text.replace('$', '')
         if upper_camel_case_text[0] not in string.ascii_uppercase:
             raise FormatError(f"'{upper_camel_case_text}' does not meet the UpperCamelCase convention")
         upper_camel_case_words = split_by_separators(upper_camel_case_text, string.ascii_uppercase)
