@@ -42,15 +42,8 @@ class WeightedSignatureDistanceCalculator(SignatureDistanceCalculator):
             self.member_count_weight * abs(sig2.member_count - sig1.member_count),
             self.method_count_weight * abs(sig2.method_count - sig1.method_count),
             self.instructions_count_weight * abs(sig2.instructions_count - sig1.instructions_count),
-            self.members_simhash_weight * self._hamming_distance(sig1.members_simhash, sig2.members_simhash),
-            self.methods_params_simhash_weight * self._hamming_distance(sig1.methods_params_simhash, sig2.methods_params_simhash),
-            self.methods_returns_simhash_weight * self._hamming_distance(sig1.methods_returns_simhash, sig2.methods_returns_simhash),
-            self.instructions_simhash_weight * self._hamming_distance(sig1.instructions_simhash, sig2.instructions_simhash),
+            self.members_simhash_weight * simhash.num_differing_bits(sig1.members_simhash, sig2.members_simhash),
+            self.methods_params_simhash_weight * simhash.num_differing_bits(sig1.methods_params_simhash, sig2.methods_params_simhash),
+            self.methods_returns_simhash_weight * simhash.num_differing_bits(sig1.methods_returns_simhash, sig2.methods_returns_simhash),
+            self.instructions_simhash_weight * simhash.num_differing_bits(sig1.instructions_simhash, sig2.instructions_simhash),
         ))
-
-    @classmethod
-    def _hamming_distance(cls, simhash1: int, simhash2: int) -> int:
-        """
-        :return: the hamming distance between the 2 simhashes
-        """
-        return simhash.num_differing_bits(simhash1, simhash2)
