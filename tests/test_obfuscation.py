@@ -1,17 +1,35 @@
-from alpaka.obfuscation import split_by_uppercase, calc_word_length_score, BAD_LENGTH, GREAT_LENGTH, is_obfuscated_word
+from alpaka.obfuscation.obfuscation import WordObfuscationDetector, ClassNameObfuscationDetector, \
+    PackageNameObfuscationDetector
 
 
-def test_split_by_upper_case():
-    assert split_by_uppercase("SignUp") == ["Sign", "Up"]
-    assert split_by_uppercase("signUp") == ["sign", "Up"]
+def test_word_obfuscation_detector():
+    word_obfuscation_detector = WordObfuscationDetector()
+    assert word_obfuscation_detector.is_obfuscated("asdff")
+    assert not word_obfuscation_detector.is_obfuscated("hello")
+    assert not word_obfuscation_detector.is_obfuscated("auth")
+    assert not word_obfuscation_detector.is_obfuscated("maps")
 
 
-def test_get_word_length_score():
-    assert calc_word_length_score("a" * BAD_LENGTH) == 0
-    assert calc_word_length_score("a" * (BAD_LENGTH + 1)) > 0
-    assert calc_word_length_score('a' * GREAT_LENGTH) == 1
-    assert calc_word_length_score('a' * (GREAT_LENGTH + 1)) == 1
+def test_class_name_obfuscation_detector():
+    is_obfuscated_func = ClassNameObfuscationDetector().is_obfuscated
+    assert is_obfuscated_func("ABC")
+    # assert is_obfuscated_func("ABCD")
+    assert is_obfuscated_func("C099602p")
+    assert is_obfuscated_func("AnonymosClass1MQ")
+    assert is_obfuscated_func("AnonymosClass123")
+    assert is_obfuscated_func("anonymosclass123")
+    assert not is_obfuscated_func("hellofriend")
+    # assert is_obfuscated_func("sdfgsjkosfsd")
+    assert not is_obfuscated_func("NativePeer")
+    # assert not is_obfuscated_func("IValue")
+    assert is_obfuscated_func("R")
 
 
-def test_is_obfuscated():
-    assert is_obfuscated_word("asdff")
+def test_package_name_obfuscation_detector():
+    is_obfuscated_func = PackageNameObfuscationDetector().is_obfuscated
+    assert not is_obfuscated_func("hello")
+    assert not is_obfuscated_func("hello_friend")
+    assert not is_obfuscated_func("hi_bye")
+    assert is_obfuscated_func("asdsgd")
+    assert is_obfuscated_func("asd123")
+    assert is_obfuscated_func("dfhgdifhsdvn")

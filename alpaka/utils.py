@@ -1,6 +1,8 @@
 import os
+import re
 import shutil
 import subprocess
+from typing import List
 
 from alpaka.colors import bcolors
 
@@ -37,3 +39,18 @@ def extract_apk(apk_path, output_path):
 
 def filter_dict(dictionary: dict, filter_function):
     return {k: v for k, v in dictionary.items() if filter_function(k, v)}
+
+
+def calc_average(l: List):
+    return sum(l) / len(l)
+
+
+def split_by_separators(text: str, seperators: List[str]):
+    previous_word_index = 0
+    words = []
+    for i in range(1, len(text)):
+        if text[i] in seperators:
+            words.append(text[previous_word_index:i])
+            previous_word_index = i
+    words.append(text[previous_word_index:len(text)])
+    return words

@@ -1,2 +1,3 @@
 .idea
 venv
+tests/test_files/ag_sessions
