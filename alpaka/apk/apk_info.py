@@ -66,3 +66,16 @@ class ApkInfo:
             return self._packages_dict
         else:
             return {ROOT_PACKAGE: PackageInfo(ROOT_PACKAGE, False, self._classes)}
+
+    def generate_parent_packages_dict(self, package_name_prefix) -> dict:
+        parent_packages_dict = {}
+        if package_name_prefix in self._packages_dict:
+            parent_package_name_prefix = PackageInfo.get_parent_package_name_prefix(package_name_prefix)
+            for another_package_name_prefix in self._packages_dict:
+                if PackageInfo.get_parent_package_name_prefix(
+                        another_package_name_prefix) == parent_package_name_prefix:
+                    # Make sure it's not the same package
+                    if another_package_name_prefix is not package_name_prefix:
+                        parent_packages_dict[another_package_name_prefix] = self._packages_dict[
+                            another_package_name_prefix]
+        return parent_packages_dict
