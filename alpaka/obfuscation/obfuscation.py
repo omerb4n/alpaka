@@ -127,7 +127,7 @@ class PackageNameObfuscationDetector(ObfuscationDetector):
 
 
 class ClassNameObfuscationDetector(ObfuscationDetector):
-    KNOWN_OBFUSCATED_PATTERNS = ["^AnonymousClass[\d\w]*$"]
+    KNOWN_OBFUSCATED_PATTERNS = [r"^AnonymousClass[\d\w]*$"]
     # Word length score
     WORD_BEST_LENGTH = 8
     WORD_WORST_LENGTH = 2
