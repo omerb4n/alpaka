@@ -10,6 +10,9 @@ from alpaka.utils import filter_dict
 
 
 class ApkInfo:
+    """
+    Holds and manipulates information about the apk's packages, classes etc.
+    """
     def __init__(self, analyzed_apk: AnalyzedApk, assume_obfuscated: bool = True,
                  use_obfuscation_detectors: bool = True):
         self._analyzed_apk = analyzed_apk

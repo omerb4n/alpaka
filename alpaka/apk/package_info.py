@@ -10,23 +10,16 @@ ROOT_PACKAGE = ''
 class PackageInfo:
     def __init__(self, package_name_prefix: str, is_obfuscated_name, classes: List[ClassInfo] = None):
         self.name_prefix = package_name_prefix
-        self.classes = []
+        self._classes = []
         if classes:
             self._classes = classes
         self.is_obfuscated_name = is_obfuscated_name
-        self._match = None
 
     def add_class(self, class_info: ClassInfo):
-        self.classes.append(class_info)
+        self._classes.append(class_info)
 
     def get_classes(self) -> List[ClassInfo]:
-        return self.classes
-
-    def _set_match(self, match_package_info: PackageInfo):
-        self._match = match_package_info
-
-    def get_match(self) -> PackageInfo:
-        return self._match
+        return self._classes
 
     @staticmethod
     def get_parent_package_name_prefix(package_name_prefix):
@@ -38,8 +31,3 @@ class PackageInfo:
 
     def __repr__(self):
         return "~Obfuscated" if self.is_obfuscated_name else ""
-
-    @staticmethod
-    def match(a: PackageInfo, b: PackageInfo):
-        a._set_match(a)
-        b._set_match(b)
