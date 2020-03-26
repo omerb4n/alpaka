@@ -54,12 +54,12 @@ class ApkInfo:
             is_obfuscated_name = self._class_name_obfuscation_detector.is_obfuscated(class_name)
         return ClassInfo(class_analysis, is_obfuscated_name)
 
-    def get_packages_dict_items_iterator(self, is_obfuscated: bool = None) -> Generator[tuple, None, None]:
+    def get_packages_iterator(self, is_obfuscated: bool = None) -> Generator[PackageInfo, None, None]:
         packages_dict = self.get_packages_dict()
-        for package_key, package in packages_dict.items():
+        for package in packages_dict.values():
             if is_obfuscated is not None and package.is_obfuscated_name != is_obfuscated:
                 continue
-            yield package_key, package
+            yield package
 
     def get_packages_dict(self) -> dict:
         if self._packages_dict:

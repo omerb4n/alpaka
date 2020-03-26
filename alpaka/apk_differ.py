@@ -1,4 +1,5 @@
-from typing import List, Generator
+import itertools
+from typing import Generator
 
 from alpaka.apk.analyzed_apk import AnalyzedApk
 from alpaka.apk.apk_info import ApkInfo
@@ -24,15 +25,23 @@ class ApkDiffer:
         self._new_apk_info.pack()
 
     def _get_classes_pools_iterator(self) -> Generator[ClassesPool, None, None]:
-        yield self._get_classes_pools_from_not_obfuscated_packages()
+        yield self._get_not_obfuscated_packages_classes_pools()
+        yield self._get_obfuscated_packages_classes_pool()
 
-    def _get_classes_pools_from_not_obfuscated_packages(self) -> Generator[ClassesPool, None, None]:
-        old_apk_packages = self._old_apk_info.get_packages_dict_items_iterator(is_obfuscated=False)
+    def _get_not_obfuscated_packages_classes_pools(self) -> Generator[ClassesPool, None, None]:
+        old_apk_packages = self._old_apk_info.get_packages_iterator(is_obfuscated=False)
         new_apk_packages: dict = self._new_apk_info.get_packages_dict()
-        for old_apk_package_name_prefix, old_apk_package in old_apk_packages:
-            new_apk_package: PackageInfo = new_apk_packages.get(old_apk_package_name_prefix)
+        for old_apk_package in old_apk_packages:
+            new_apk_package: PackageInfo = new_apk_packages.get(old_apk_package.name_prefix)
             if new_apk_package is not None and new_apk_package.is_obfuscated_name is False:
                 yield ClassesPool(old_apk_package.get_classes(), new_apk_package.get_classes())
+
+    def _get_obfuscated_packages_classes_pool(self) -> Generator[ClassesPool, None, None]:
+        old_apk_packages = self._old_apk_info.get_packages_iterator(is_obfuscated=True)
+        new_apk_packages = self._new_apk_info.get_packages_iterator(is_obfuscated=True)
+        old_apk_classes = list(itertools.chain.from_iterable([package.get_classes() for package in old_apk_packages]))
+        new_apk_classes = list(itertools.chain.from_iterable([package.get_classes() for package in new_apk_packages]))
+        yield ClassesPool(old_apk_classes, new_apk_classes)
 
     def find_class_matches(self):
         for classes_pool in self._get_classes_pools_iterator():
