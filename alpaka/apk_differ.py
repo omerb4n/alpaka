@@ -1,10 +1,9 @@
-from typing import List
+from typing import List, Generator
 
-from alpaka.apk import packages_match
 from alpaka.apk.analyzed_apk import AnalyzedApk
 from alpaka.apk.apk_info import ApkInfo
 from alpaka.apk.package_info import PackageInfo
-from alpaka.apk.packages_match import ClassesPool
+from alpaka.apk.classes_pool import ClassesPool
 
 
 class ApkDiffer:
@@ -24,20 +23,19 @@ class ApkDiffer:
         self._old_apk_info.pack()
         self._new_apk_info.pack()
 
-    def _get_classes_pools(self) -> List[ClassesPool]:
-        classes_pools: List[ClassesPool] = []
-        # TODO change get_packages to return dict
-        old_apk_packages: List[PackageInfo] = self._old_apk_info.get_packages(is_obfuscated=False)
-        new_apk_packages: List[PackageInfo] = list(self._new_apk_info.get_packages(is_obfuscated=False))
-        for old_apk_package in old_apk_packages:
-            for new_apk_package in new_apk_packages:
-                if old_apk_package.name_prefix == new_apk_package.name_prefix:
-                    classes_pools.append(ClassesPool(old_apk_package.get_classes(), new_apk_package.get_classes()))
-        return classes_pools
+    def _get_classes_pools_iterator(self) -> Generator[ClassesPool, None, None]:
+        yield self._get_classes_pools_from_not_obfuscated_packages()
+
+    def _get_classes_pools_from_not_obfuscated_packages(self) -> Generator[ClassesPool, None, None]:
+        old_apk_packages = self._old_apk_info.get_packages_dict_items_iterator(is_obfuscated=False)
+        new_apk_packages: dict = self._new_apk_info.get_packages_dict()
+        for old_apk_package_name_prefix, old_apk_package in old_apk_packages:
+            new_apk_package: PackageInfo = new_apk_packages.get(old_apk_package_name_prefix)
+            if new_apk_package is not None and new_apk_package.is_obfuscated_name is False:
+                yield ClassesPool(old_apk_package.get_classes(), new_apk_package.get_classes())
 
     def find_class_matches(self):
-        classes_pools: List[ClassesPool] = self._get_classes_pools()
-        for classes_pool in classes_pools:
+        for classes_pool in self._get_classes_pools_iterator():
             for class_info in classes_pool.old_classes:
                 # TODO: check if obfuscated and try to match
                 pass
