@@ -4,10 +4,10 @@ class ClassSignature:
             member_count: int,
             method_count: int,
             instructions_count: int,
-            members_simhash: str,
-            methods_params_simhash: str,
-            method_returns_simhash: str,
-            instructions_simhash: str,
+            members_simhash: int,
+            methods_params_simhash: int,
+            method_returns_simhash: int,
+            instructions_simhash: int,
     ):
         self.member_count = member_count
         self.method_count = method_count
