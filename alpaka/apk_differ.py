@@ -27,8 +27,12 @@ class ApkDiffer:
         self._new_apk_info.pack()
 
     def _get_classes_pools_iterator(self) -> Generator[ClassesPool, None, None]:
-        yield self._get_not_obfuscated_packages_classes_pools()
-        yield self._get_obfuscated_packages_classes_pool()
+        not_obfuscated_packages_classes_pools_iterator = self._get_not_obfuscated_packages_classes_pools()
+        obfuscated_packages_classes_pools_iterator = self._get_obfuscated_packages_classes_pool()
+        for classes_pool in not_obfuscated_packages_classes_pools_iterator:
+            yield classes_pool
+        for classes_pool in obfuscated_packages_classes_pools_iterator:
+            yield classes_pool
 
     def _get_not_obfuscated_packages_classes_pools(self) -> Generator[ClassesPool, None, None]:
         old_apk_packages = self._old_apk_info.get_packages_iterator(is_obfuscated=False)
@@ -63,6 +67,6 @@ class ApkDiffer:
 
     def _find_non_obfuscated_class_matches(self, class_to_match: ClassInfo,
                                            potential_matches: List[ClassInfo]) -> ClassMatches:
-        # TODO: find match by class name prefix if not fonud then find with _find_obfuscated_class_matches
+        # TODO: find match by class name prefix if not found then find with _find_obfuscated_class_matches
         # TODO: Maybe change potential_matches to be a dict so that finding the same class name will be more efficient
         raise NotImplementedError()
