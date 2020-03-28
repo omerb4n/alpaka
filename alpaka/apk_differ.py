@@ -1,8 +1,10 @@
 import itertools
-from typing import Generator
+from typing import Generator, List
 
 from alpaka.apk.analyzed_apk import AnalyzedApk
 from alpaka.apk.apk_info import ApkInfo
+from alpaka.apk.class_info import ClassInfo
+from alpaka.apk.class_matches import ClassMatches
 from alpaka.apk.package_info import PackageInfo
 from alpaka.apk.classes_pool import ClassesPool
 
@@ -43,11 +45,24 @@ class ApkDiffer:
         new_apk_classes = list(itertools.chain.from_iterable([package.get_classes() for package in new_apk_packages]))
         yield ClassesPool(old_apk_classes, new_apk_classes)
 
-    def find_class_matches(self):
+    def find_classes_matches(self) -> List[ClassMatches]:
+        classes_matches: List[ClassMatches] = []
         for classes_pool in self._get_classes_pools_iterator():
             for class_info in classes_pool.old_classes:
-                # TODO: check if obfuscated and try to match
-                pass
+                if class_info.is_obfuscated_name:
+                    classes_matches.append(self._find_obfuscated_class_matches(class_info, classes_pool.new_classes))
+                else:
+                    classes_matches.append(
+                        self._find_non_obfuscated_class_matches(class_info, classes_pool.new_classes))
+        return classes_matches
 
-    def generate_class_signature(self):
-        pass
+    def _find_obfuscated_class_matches(self, class_to_match: ClassInfo,
+                                       potential_matches: List[ClassInfo]) -> ClassMatches:
+        # TODO: Use ClassSignature distances
+        raise NotImplementedError()
+
+    def _find_non_obfuscated_class_matches(self, class_to_match: ClassInfo,
+                                           potential_matches: List[ClassInfo]) -> ClassMatches:
+        # TODO: find match by class name prefix if not fonud then find with _find_obfuscated_class_matches
+        # TODO: Maybe change potential_matches to be a dict so that finding the same class name will be more efficient
+        raise NotImplementedError()
