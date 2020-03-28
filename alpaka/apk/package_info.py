@@ -8,7 +8,7 @@ ROOT_PACKAGE = ''
 
 
 class PackageInfo:
-    def __init__(self, package_name_prefix: str, is_obfuscated_name, classes: List[ClassInfo] = None):
+    def __init__(self, package_name_prefix: str, is_obfuscated_name: bool, classes: List[ClassInfo] = None):
         self.name_prefix = package_name_prefix
         self._classes = []
         if classes:
