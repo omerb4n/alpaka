@@ -40,7 +40,7 @@ def diff(old_apk_path, old_apk_session_path, new_apk_path, new_apk_session_path)
     new_apk = AnalyzedApk(new_apk_path, session_path=new_apk_session_path)
 
     apk_differ = ApkDiffer(old_apk, new_apk)
-    apk_differ.filter_classes(myapplication_filter)
+    apk_differ.filter_classes(android_class_filter)
     apk_differ.pack()
     apk_differ.find_classes_matches()
     pass
