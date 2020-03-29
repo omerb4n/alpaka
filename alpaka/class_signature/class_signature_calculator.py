@@ -17,8 +17,8 @@ class ClassSignatureCalculator:
         )
 
     @classmethod
-    def _get_member_count(cls, class_analysis: ClassAnalysis):
-        raise NotImplementedError()
+    def _get_member_count(cls, class_analysis: ClassAnalysis) -> int:
+        return len(class_analysis.get_fields())
 
     @classmethod
     def _get_method_count(cls, class_analysis: ClassAnalysis) -> int:
