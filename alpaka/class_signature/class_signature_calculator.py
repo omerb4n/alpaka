@@ -1,6 +1,7 @@
 from androguard.core.analysis.analysis import ClassAnalysis
 
 from alpaka.class_signature.signature import ClassSignature
+from alpaka.class_signature.simhash_utils import calculate_simhash
 
 
 class ClassSignatureCalculator:
@@ -29,8 +30,11 @@ class ClassSignatureCalculator:
         raise NotImplementedError()
 
     @classmethod
-    def _calc_members_simhash(cls, class_analysis: ClassAnalysis):
-        raise NotImplementedError()
+    def _calc_members_simhash(cls, class_analysis: ClassAnalysis) -> int:
+        return calculate_simhash((
+            member.field.get_descriptor()
+            for member in class_analysis.get_fields()
+        ))
 
     @classmethod
     def _calc_methods_params_simhash(cls, class_analysis: ClassAnalysis):
