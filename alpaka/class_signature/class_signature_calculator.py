@@ -2,9 +2,13 @@ from androguard.core.analysis.analysis import ClassAnalysis
 
 from alpaka.class_signature.signature import ClassSignature
 from alpaka.class_signature.simhash_utils import calculate_simhash
+from alpaka.obfuscation.types import ObfuscationDetector
 
 
 class ClassSignatureCalculator:
+
+    def __init__(self, obfuscation_detector: ObfuscationDetector):
+        self._obfuscation_detector = obfuscation_detector
 
     def calculate_class_signature(self, class_analysis: ClassAnalysis) -> ClassSignature:
         return ClassSignature(
@@ -29,11 +33,12 @@ class ClassSignatureCalculator:
     def _get_instructions_count(cls, class_analysis: ClassAnalysis):
         raise NotImplementedError()
 
-    @classmethod
-    def _calc_members_simhash(cls, class_analysis: ClassAnalysis) -> int:
+    def _calc_members_simhash(self, class_analysis: ClassAnalysis) -> int:
         return calculate_simhash((
-            member.field.get_descriptor()
-            for member in class_analysis.get_fields()
+            type_descriptor for member in class_analysis.get_fields()
+            if not self._obfuscation_detector.is_obfuscated(
+                type_descriptor := member.field.get_descriptor()
+            )
         ))
 
     @classmethod
