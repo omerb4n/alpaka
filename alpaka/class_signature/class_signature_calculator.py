@@ -21,8 +21,8 @@ class ClassSignatureCalculator:
         raise NotImplementedError()
 
     @classmethod
-    def _get_method_count(cls, class_analysis: ClassAnalysis):
-        raise NotImplementedError()
+    def _get_method_count(cls, class_analysis: ClassAnalysis) -> int:
+        return class_analysis.get_nb_methods()
 
     @classmethod
     def _get_instructions_count(cls, class_analysis: ClassAnalysis):
