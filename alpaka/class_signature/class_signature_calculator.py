@@ -28,7 +28,7 @@ class ClassSignatureCalculator:
 
     @classmethod
     def _get_instructions_count(cls, class_analysis: ClassAnalysis):
-        raise NotImplementedError()
+        return sum((1 for _instruction in iterate_class_instruction(class_analysis)))
 
     @classmethod
     def _calc_members_simhash(cls, class_analysis: ClassAnalysis):

@@ -11,3 +11,7 @@ def main_activity_class_fixture(hello_apk_classes_fixture) -> ClassAnalysis:
 
 def test_calc_instructions_simhash(main_activity_class_fixture):
     ClassSignatureCalculator._calc_instructions_simhash(main_activity_class_fixture)
+
+
+def test_get_instructions_count(main_activity_class_fixture):
+    assert ClassSignatureCalculator._get_instructions_count(main_activity_class_fixture) == 13
