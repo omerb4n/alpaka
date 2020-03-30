@@ -5,6 +5,6 @@ from alpaka.apk.class_info import ClassInfo
 
 
 @dataclass
-class ClassesPool:
-    old_classes: List[ClassInfo]
-    new_classes: List[ClassInfo]
+class ClassesPoolMatch:
+    old_classes_pool: List[ClassInfo]
+    new_classes_pool: List[ClassInfo]

@@ -1,5 +1,3 @@
-from typing import Generator
-
 from androguard.core.analysis.analysis import ClassAnalysis
 
 from alpaka.apk.analyzed_apk import AnalyzedApk
@@ -54,13 +52,6 @@ class ApkInfo:
             class_name = ClassInfo.get_class_name(class_analysis.name)
             is_obfuscated_name = self._class_name_obfuscation_detector.is_obfuscated(class_name)
         return ClassInfo(class_analysis, is_obfuscated_name)
-
-    def get_packages_iterator(self, is_obfuscated: bool = None) -> Generator[PackageInfo, None, None]:
-        packages_dict = self.get_packages_dict()
-        for package in packages_dict.values():
-            if is_obfuscated is not None and package.is_obfuscated_name != is_obfuscated:
-                continue
-            yield package
 
     def get_packages_dict(self) -> dict:
         if self._packages_dict:
