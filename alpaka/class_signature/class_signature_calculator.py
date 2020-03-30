@@ -1,3 +1,6 @@
+import re
+from typing import List
+
 from androguard.core.analysis.analysis import ClassAnalysis
 
 from alpaka.class_signature.signature import ClassSignature
@@ -6,6 +9,15 @@ from alpaka.obfuscation.types import ObfuscationDetector
 
 
 class ClassSignatureCalculator:
+
+    TYPE_DESCRIPTOR_REGEX = re.compile(
+        r'\[*'  # '[' char(s) before type indicate array
+        r'(?:'
+        r'[VZBSCIJFD]'  # void and primitives
+        r'|'
+        r'L[^;]*;'  # class descriptors: L<full_class_name>;
+        r')'
+    )
 
     def __init__(self, obfuscation_detector: ObfuscationDetector):
         self._obfuscation_detector = obfuscation_detector
@@ -41,9 +53,18 @@ class ClassSignatureCalculator:
             )
         ))
 
+    def _calc_methods_params_simhash(self, class_analysis: ClassAnalysis) -> int:
+        return calculate_simhash((
+            param_type
+            for method in class_analysis.get_methods()
+            for param_type in self._get_param_types_from_method_descriptor(method.descriptor)
+            if not self._obfuscation_detector.is_obfuscated(param_type)
+        ))
+
     @classmethod
-    def _calc_methods_params_simhash(cls, class_analysis: ClassAnalysis):
-        raise NotImplementedError()
+    def _get_param_types_from_method_descriptor(cls, method_descriptor: str) -> List[str]:
+        concatenated_params = method_descriptor[1:].split(')')[0]
+        return cls.TYPE_DESCRIPTOR_REGEX.findall(concatenated_params)
 
     def _calc_methods_returns_simhash(self, class_analysis: ClassAnalysis) -> int:
         return calculate_simhash((
