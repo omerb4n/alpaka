@@ -53,11 +53,13 @@ class ApkInfo:
             is_obfuscated_name = self._class_name_obfuscation_detector.is_obfuscated(class_name)
         return ClassInfo(class_analysis, is_obfuscated_name)
 
-    def get_packages_dict(self) -> dict:
+    @property
+    def packages_dict(self) -> dict:
         if self._packages_dict:
             return self._packages_dict
         else:
-            return {ROOT_PACKAGE: PackageInfo(ROOT_PACKAGE, False, self._classes)}
+            self._packages_dict = {ROOT_PACKAGE: PackageInfo(ROOT_PACKAGE, False, self._classes)}
+            return self._packages_dict
 
     def generate_parent_packages_dict(self, package_name_prefix) -> dict:
         parent_packages_dict = {}

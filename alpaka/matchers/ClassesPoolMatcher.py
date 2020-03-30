@@ -9,8 +9,8 @@ from alpaka.apk.package_info import PackageInfo
 class ClassesPoolMatcher:
     def __init__(self, old_apk_info: ApkInfo, new_apk_info: ApkInfo):
         # Shallow copies
-        self._old_packages_dict: dict = dict(old_apk_info.get_packages_dict())
-        self._new_packages_dict: dict = dict(new_apk_info.get_packages_dict())
+        self._old_packages_dict: dict = dict(old_apk_info.packages_dict)
+        self._new_packages_dict: dict = dict(new_apk_info.packages_dict)
 
     def pop_matched_packages_classes_pools(self) -> Generator[ClassesPoolMatch, None, None]:
         for package_key in self._old_packages_dict.keys():
