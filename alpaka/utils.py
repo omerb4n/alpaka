@@ -2,7 +2,7 @@ import os
 import re
 import shutil
 import subprocess
-from typing import List
+from typing import List, Iterable
 
 from alpaka.colors import bcolors
 
@@ -64,3 +64,7 @@ def get_domain_name(domain):
 
 def get_subdomain(domain):
     return domain[:domain.rfind(NAME_SEPARATOR)]
+
+
+def merge_dicts(dicts: Iterable[dict]):
+    return {k: v for d in dicts for k, v in d.items()}
