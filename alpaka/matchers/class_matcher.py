@@ -2,7 +2,7 @@ from typing import List
 
 from alpaka.apk.apk_info import ApkInfo
 from alpaka.apk.class_info import ClassInfo
-from alpaka.apk.class_matches import ClassMatches, ClassMatch
+from alpaka.matchers.class_matches import ClassMatches, ClassMatch
 
 
 class ClassMatcher:
