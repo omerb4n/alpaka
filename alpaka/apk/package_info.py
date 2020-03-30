@@ -4,8 +4,6 @@ from typing import List
 from alpaka.apk.class_info import ClassInfo
 from alpaka.utils import get_domain_name, get_subdomain
 
-ROOT_PACKAGE = ''
-
 
 class PackageInfo:
     def __init__(self, package_name_prefix: str, is_obfuscated_name: bool, classes: List[ClassInfo] = None):
