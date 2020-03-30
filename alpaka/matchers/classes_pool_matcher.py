@@ -2,7 +2,7 @@ import itertools
 from typing import Generator
 
 from alpaka.apk.apk_info import ApkInfo
-from alpaka.matchers.classes_pool import ClassesPoolMatch
+from alpaka.matchers.classes_pool_match import ClassesPoolMatch
 from alpaka.apk.package_info import PackageInfo
 
 
