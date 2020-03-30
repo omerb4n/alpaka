@@ -45,9 +45,17 @@ class ClassSignatureCalculator:
     def _calc_methods_params_simhash(cls, class_analysis: ClassAnalysis):
         raise NotImplementedError()
 
+    def _calc_methods_returns_simhash(self, class_analysis: ClassAnalysis) -> int:
+        return calculate_simhash((
+            return_type for method in class_analysis.get_methods()
+            if not self._obfuscation_detector.is_obfuscated(
+                return_type := self._get_return_type_from_method_descriptor(method.descriptor)
+            )
+        ))
+
     @classmethod
-    def _calc_methods_returns_simhash(cls, class_analysis: ClassAnalysis):
-        raise NotImplementedError()
+    def _get_return_type_from_method_descriptor(cls, method_descriptor: str) -> str:
+        return method_descriptor.split(')')[-1]
 
     @classmethod
     def _calc_instructions_simhash(cls, class_analysis: ClassAnalysis):
