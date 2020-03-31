@@ -3,6 +3,7 @@ from abc import ABCMeta, abstractmethod
 import simhash
 
 from alpaka.class_signature.signature import ClassSignature
+from alpaka.class_signature.simhash_utils import calculate_distance
 
 
 class SignatureDistanceCalculator(metaclass=ABCMeta):
@@ -45,5 +46,5 @@ class WeightedSignatureDistanceCalculator(SignatureDistanceCalculator):
             self.members_simhash_weight * simhash.num_differing_bits(sig1.members_simhash, sig2.members_simhash),
             self.methods_params_simhash_weight * simhash.num_differing_bits(sig1.methods_params_simhash, sig2.methods_params_simhash),
             self.methods_returns_simhash_weight * simhash.num_differing_bits(sig1.methods_returns_simhash, sig2.methods_returns_simhash),
-            self.instructions_simhash_weight * simhash.num_differing_bits(sig1.instructions_simhash, sig2.instructions_simhash),
+            self.instructions_simhash_weight * calculate_distance(sig1.instructions_simhash, sig2.instructions_simhash),
         ))

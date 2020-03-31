@@ -1,18 +1,8 @@
-import os
-
-from androguard.core.analysis.analysis import ClassAnalysis
-
-from alpaka.apk.analyzed_apk import AnalyzedApk
+from alpaka.analyzed_apk import AnalyzedApk
 from alpaka.apk_differ import ApkDiffer
-from alpaka.apk.apk_info import ApkInfo
-from tests.conftest import AG_SESSIONS_PATH, APKS_PATH
-
-TOAST_APKS_PATH = os.path.join(APKS_PATH, 'toastAPK')
-TOAST_HELLO_APK_PATH = os.path.join(TOAST_APKS_PATH, 'hello.apk')
-TOAST_HELLO_SESSION_PATH = os.path.join(AG_SESSIONS_PATH, 'hello.ag')
-
-TOAST_BYE_APK_PATH = os.path.join(TOAST_APKS_PATH, 'bye.apk')
-TOAST_BYE_SESSION_PATH = os.path.join(AG_SESSIONS_PATH, 'bye.ag')
+from alpaka.apk_info import ApkInfo
+from tests.conftest import TOAST_HELLO_APK_PATH, TOAST_HELLO_SESSION_PATH, \
+    TOAST_BYE_APK_PATH, TOAST_BYE_SESSION_PATH
 
 
 def myapplication_filter(k: str, v):
