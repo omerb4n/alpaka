@@ -20,14 +20,15 @@ class ClassMatcher:
         self._weighted_signature_distance_calculator = WeightedSignatureDistanceCalculator(0.2, 0.2, 0.2, 0.1, 0.1, 0.1,
                                                                                            0.1)
 
-    def find_classes_matches(self) -> List[ClassMatches]:
+    def find_classes_matches(self):
         # For efficiency always use pop_matched_packages_classes_pools first
         for classes_pool_match in self._classes_pool_matcher.pop_matched_packages_classes_pools():
             self._find_classes_matches_by_name(classes_pool_match.old_classes_pool, classes_pool_match.new_classes_pool)
-        for all_classes_pool_match in self._classes_pool_matcher.get_all_classes_pool_chain_map():
-            # TODO: uncomment the line bellow
-            # classes_matches.append(self._find_class_matches_by_signature(class_info, classes_pool.new_classes))
-            pass
+            self._find_classes_matches_by_signature(classes_pool_match.old_classes_pool,
+                                                    classes_pool_match.new_classes_pool)
+        all_classes_pool_match = self._classes_pool_matcher.get_all_classes_pool_chain_map()
+        self._find_classes_matches_by_signature(all_classes_pool_match.old_classes_pool,
+                                                all_classes_pool_match.new_classes_pool)
 
     @staticmethod
     def _find_class_match_by_name(old_classes_pool: dict, new_classes_pool: dict, class_key) -> Optional[ClassMatch]:
