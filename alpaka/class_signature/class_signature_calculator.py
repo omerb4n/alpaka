@@ -1,6 +1,10 @@
+from typing import Generator
+
 from androguard.core.analysis.analysis import ClassAnalysis
+from androguard.core.bytecodes.dvm import Instruction
 
 from alpaka.class_signature.signature import ClassSignature
+from alpaka.class_signature.simhash_utils import calculate_simhash
 
 
 class ClassSignatureCalculator:
@@ -26,7 +30,7 @@ class ClassSignatureCalculator:
 
     @classmethod
     def _get_instructions_count(cls, class_analysis: ClassAnalysis):
-        raise NotImplementedError()
+        return sum((1 for _instruction in cls.iterate_class_instruction(class_analysis)))
 
     @classmethod
     def _calc_members_simhash(cls, class_analysis: ClassAnalysis):
@@ -42,4 +46,11 @@ class ClassSignatureCalculator:
 
     @classmethod
     def _calc_instructions_simhash(cls, class_analysis: ClassAnalysis):
-        raise NotImplementedError()
+        return calculate_simhash(
+            (instruction.get_name() for instruction in cls.iterate_class_instruction(class_analysis)))
+
+    @staticmethod
+    def iterate_class_instruction(class_analysis: ClassAnalysis) -> Generator[Instruction, None, None]:
+        for method in class_analysis.get_vm_class().get_methods():
+            for instruction in method.get_instructions():
+                yield instruction
