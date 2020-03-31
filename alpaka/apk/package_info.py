@@ -7,16 +7,13 @@ from alpaka.utils import get_domain_name, get_subdomain
 class PackageInfo:
     def __init__(self, package_name_prefix: str, is_obfuscated_name: bool, classes_dict: dict = None):
         self.name_prefix = package_name_prefix
-        self._classes_dict = {}
+        self.classes_dict = {}
         if classes_dict:
-            self._classes_dict = classes_dict
+            self.classes_dict = classes_dict
         self.is_obfuscated_name = is_obfuscated_name
 
     def add_class(self, class_info: ClassInfo):
-        self._classes_dict[class_info.analysis.name] = class_info
-
-    def get_classes_dict(self) -> dict:
-        return self._classes_dict
+        self.classes_dict[class_info.analysis.name] = class_info
 
     @staticmethod
     def get_parent_package_name_prefix(package_name_prefix):
