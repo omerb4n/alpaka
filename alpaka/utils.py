@@ -2,9 +2,11 @@ import os
 import re
 import shutil
 import subprocess
-from typing import List
+from typing import List, Iterable
 
 from alpaka.colors import bcolors
+
+NAME_SEPARATOR = '/'
 
 
 def validate_file_exists(path):
@@ -54,3 +56,11 @@ def split_by_separators(text: str, seperators: List[str]):
             previous_word_index = i
     words.append(text[previous_word_index:len(text)])
     return words
+
+
+def get_domain_name(domain):
+    return domain[domain.rfind(NAME_SEPARATOR) + 1:]
+
+
+def get_subdomain(domain):
+    return domain[:domain.rfind(NAME_SEPARATOR)]

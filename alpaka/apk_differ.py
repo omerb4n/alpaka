@@ -1,8 +1,12 @@
-from alpaka.analyzed_apk import AnalyzedApk
-from alpaka.apk_info import ApkInfo
+from alpaka.apk.analyzed_apk import AnalyzedApk
+from alpaka.apk.apk_info import ApkInfo
 
 
 class ApkDiffer:
+    """
+    Diffs between two AnalyzedApks using ApkInfo
+    """
+
     def __init__(self, old_apk: AnalyzedApk, new_apk: AnalyzedApk):
         self._old_apk_info = ApkInfo(old_apk)
         self._new_apk_info = ApkInfo(new_apk)
@@ -14,3 +18,6 @@ class ApkDiffer:
     def pack(self):
         self._old_apk_info.pack()
         self._new_apk_info.pack()
+
+    def find_classes_matches(self):
+        pass

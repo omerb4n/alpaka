@@ -61,7 +61,9 @@ class AverageScore(ScoreSystem):
 
 
 class UpperCamelCaseGrade(GradeSystem):
-    def _calc_score(self, upper_camel_case_text):
+    def _calc_score(self, upper_camel_case_text: str):
+        # Remove $ for Class name grade
+        upper_camel_case_text.replace('$', '')
         if upper_camel_case_text[0] not in string.ascii_uppercase:
             raise FormatError(f"'{upper_camel_case_text}' does not meet the UpperCamelCase convention")
         upper_camel_case_words = split_by_separators(upper_camel_case_text, string.ascii_uppercase)
@@ -125,7 +127,7 @@ class PackageNameObfuscationDetector(ObfuscationDetector):
 
 
 class ClassNameObfuscationDetector(ObfuscationDetector):
-    KNOWN_OBFUSCATED_PATTERNS = ["^AnonymousClass[\d\w]*$"]
+    KNOWN_OBFUSCATED_PATTERNS = [r"^AnonymousClass[\d\w]*$"]
     # Word length score
     WORD_BEST_LENGTH = 8
     WORD_WORST_LENGTH = 2
@@ -163,7 +165,7 @@ class ClassNameObfuscationDetector(ObfuscationDetector):
         word_count_score_weight = ScoreWeight(
             LengthScore(self.BEST_WORDS_COUNT, self.WORST_WORDS_COUNT, self.WORDS_COUNT_GROWTH),
             self.WORDS_COUNT_WEIGHT)
-        characters_score_weight = ScoreWeight(CharactersScore(list(string.ascii_letters)), self.CHARACTERS_WEIGHT)
+        characters_score_weight = ScoreWeight(CharactersScore(list(string.ascii_letters) + ['$']), self.CHARACTERS_WEIGHT)
 
         upper_camel_case_score_weight = ScoreWeight(
             UpperCamelCaseGrade([average_score_score_weight, word_count_score_weight]), self.UPPER_CAMEL_CASE_WEIGHT)
