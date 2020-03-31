@@ -1,9 +1,9 @@
+from collections import ChainMap
 from typing import Generator
 
 from alpaka.apk.apk_info import ApkInfo
 from alpaka.matchers.classes_pool_match import ClassesPoolMatch
 from alpaka.apk.package_info import PackageInfo
-from alpaka.utils import merge_dicts
 
 
 class ClassesPoolMatcher:
@@ -23,13 +23,18 @@ class ClassesPoolMatcher:
                     yield ClassesPoolMatch(dict(old_package.get_classes_dict()),
                                            dict(new_apk_package.get_classes_dict()))
 
-    def get_all_classes_pool(self) -> ClassesPoolMatch:
-        # Don't use ChainMap because deleting keys doesn't work there
-        old_classes_dict = self.merge_classes_dict(self._old_packages_dict)
-        new_classes_dict = self.merge_classes_dict(self._new_packages_dict)
-        return ClassesPoolMatch(old_classes_dict, new_classes_dict)
+    def get_all_classes_pool_chain_map(self) -> ClassesPoolMatch:
+        """
+        For efficiency, each classes pool is a ChainMap.
+        You should not remove elements or make any changes to this ChainMap.
+        Changes will actually change the original dictionaries.
+        :return:
+        """
+        old_classes_chain_map = ChainMap(*self.all_classes_dicts_iter(self._old_packages_dict))
+        new_classes_chain_map = ChainMap(*self.all_classes_dicts_iter(self._old_packages_dict))
+        return ClassesPoolMatch(old_classes_chain_map, new_classes_chain_map)
 
     @staticmethod
-    def merge_classes_dict(packages_dict: dict):
-        classes_dicts = (dict(package.get_classes_dict()) for package in packages_dict)
-        return merge_dicts(classes_dicts)
+    def all_classes_dicts_iter(packages_dict: dict):
+        # Don't create a shallow copy dict for efficiency
+        return (package.get_classes_dict() for package in packages_dict)
