@@ -40,6 +40,14 @@ class ClassMatcher:
             return ClassMatch(new_class, 1.0)
 
     def _find_classes_matches_by_name(self, old_classes_pool: dict, new_classes_pool: dict):
+        """
+        Received classes pools will be filtered from matches thus, it's important they will be dicts.
+        :param old_classes_pool:
+        :param new_classes_pool:
+        :return:
+        """
+        if isinstance(old_classes_pool, dict) or isinstance(new_classes_pool, dict):
+            raise TypeError("classes_pool should be a dict")
         for class_key in old_classes_pool:
             class_match = self._find_class_match_by_name(old_classes_pool, new_classes_pool, class_key)
             if class_match:
