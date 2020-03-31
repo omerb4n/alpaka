@@ -1,7 +1,10 @@
 from dataclasses import dataclass
 from typing import ChainMap, Union
 
-ClassesPool = Union[dict, ChainMap]
+from alpaka.apk.class_info import ClassInfo
+from alpaka.apk.package_info import ClassesDict
+
+ClassesPool = Union[ClassesDict, ChainMap[str, ClassInfo]]
 
 
 @dataclass

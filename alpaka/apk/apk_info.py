@@ -1,3 +1,5 @@
+from typing import Dict
+
 from androguard.core.analysis.analysis import ClassAnalysis
 
 from alpaka.apk.analyzed_apk import AnalyzedApk
@@ -6,6 +8,8 @@ from alpaka.apk.package_info import PackageInfo
 from alpaka.apk.config import ROOT_PACKAGE
 from alpaka.obfuscation.obfuscation import PackageNameObfuscationDetector, ClassNameObfuscationDetector
 from alpaka.utils import filter_dict
+
+PackagesDict = Dict[str, PackageInfo]
 
 
 class ApkInfo:
@@ -19,7 +23,7 @@ class ApkInfo:
         self._assume_obfuscated = assume_obfuscated
         self._use_obfuscation_detectors = use_obfuscation_detectors
         self._classes = self._analyzed_apk.analysis.classes
-        self._packages_dict: dict = None
+        self._packages_dict: PackagesDict = None
 
         self._package_name_obfuscation_detector = PackageNameObfuscationDetector()
         self._class_name_obfuscation_detector = ClassNameObfuscationDetector()
@@ -54,7 +58,7 @@ class ApkInfo:
         return ClassInfo(class_analysis, is_obfuscated_name)
 
     @property
-    def packages_dict(self) -> dict:
+    def packages_dict(self) -> PackagesDict:
         if self._packages_dict:
             return self._packages_dict
         else:
