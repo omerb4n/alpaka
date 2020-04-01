@@ -1,8 +1,8 @@
 from alpaka.apk.analyzed_apk import AnalyzedApk
 from alpaka.apk_differ import ApkDiffer
 from tests.class_filters import android_class_filter
-from tests.conftest import TOAST_HELLO_APK_PATH, TOAST_HELLO_SESSION_PATH, \
-    TOAST_BYE_APK_PATH, TOAST_BYE_SESSION_PATH
+from tests.apks_config.bye_apk_config import TOAST_BYE_APK_PATH, TOAST_BYE_SESSION_PATH
+from tests.apks_config.hello_apk_config import TOAST_HELLO_APK_PATH, TOAST_HELLO_SESSION_PATH
 
 
 def diff(old_apk_path, old_apk_session_path, new_apk_path, new_apk_session_path):
