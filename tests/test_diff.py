@@ -1,6 +1,8 @@
-from alpaka.analyzed_apk import AnalyzedApk
+from androguard.core.analysis.analysis import ClassAnalysis
+
+from alpaka.apk.analyzed_apk import AnalyzedApk
+from alpaka.apk.apk_info import ApkInfo
 from alpaka.apk_differ import ApkDiffer
-from alpaka.apk_info import ApkInfo
 from tests.conftest import TOAST_HELLO_APK_PATH, TOAST_HELLO_SESSION_PATH, \
     TOAST_BYE_APK_PATH, TOAST_BYE_SESSION_PATH
 

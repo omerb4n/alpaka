@@ -5,7 +5,7 @@ from unittest.mock import Mock
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
 
-from alpaka.analyzed_apk import AnalyzedApk
+from alpaka.apk.analyzed_apk import AnalyzedApk
 
 TEST_FILES_PATH = os.path.join(os.path.dirname(__file__), "test_files")
 APKS_PATH = os.path.join(TEST_FILES_PATH, "apks")
