@@ -36,6 +36,11 @@ class ClassSignatureCalculator:
 
     @classmethod
     def _get_member_count(cls, class_analysis: ClassAnalysis) -> int:
+        """
+        This will not count the static fields. see https://github.com/androguard/androguard/issues/554
+        :param class_analysis:
+        :return:
+        """
         return len(class_analysis.get_fields())
 
     @classmethod
