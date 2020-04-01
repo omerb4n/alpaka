@@ -47,7 +47,7 @@ class ClassMatcher:
         :param new_classes_pool:
         :return:
         """
-        if isinstance(old_classes_pool, dict) or isinstance(new_classes_pool, dict):
+        if not (isinstance(old_classes_pool, dict) and isinstance(new_classes_pool, dict)):
             raise TypeError("classes_pool should be a dict")
         for class_key in old_classes_pool:
             class_match = self._find_class_match_by_name(old_classes_pool, new_classes_pool, class_key)
