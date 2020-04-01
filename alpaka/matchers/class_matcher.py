@@ -33,7 +33,7 @@ class ClassMatcher:
     @staticmethod
     def _find_class_match_by_name(old_classes_pool: dict, new_classes_pool: dict, class_key) -> Optional[ClassMatch]:
         new_class: ClassInfo = new_classes_pool.get(class_key)
-        if new_class.is_obfuscated_name:
+        if new_class is None or new_class.is_obfuscated_name:
             return None
         else:
             del old_classes_pool[class_key]
