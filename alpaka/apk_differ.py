@@ -1,5 +1,6 @@
 from alpaka.apk.analyzed_apk import AnalyzedApk
 from alpaka.apk.apk_info import ApkInfo
+from alpaka.matchers.class_matcher import ClassMatcher
 
 
 class ApkDiffer:
@@ -20,4 +21,5 @@ class ApkDiffer:
         self._new_apk_info.pack()
 
     def find_classes_matches(self):
-        pass
+        class_matcher = ClassMatcher(self._old_apk_info, self._new_apk_info)
+        return class_matcher.find_classes_matches()
