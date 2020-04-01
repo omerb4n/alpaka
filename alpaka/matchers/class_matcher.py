@@ -31,13 +31,11 @@ class ClassMatcher:
                                                 all_classes_pool_match.new_classes_pool)
 
     @staticmethod
-    def _find_class_match_by_name(old_classes_pool: dict, new_classes_pool: dict, class_key) -> Optional[ClassMatch]:
+    def _find_class_match_by_name(new_classes_pool: dict, class_key) -> Optional[ClassMatch]:
         new_class: ClassInfo = new_classes_pool.get(class_key)
         if new_class is None or new_class.is_obfuscated_name:
             return None
         else:
-            del old_classes_pool[class_key]
-            del new_classes_pool[class_key]
             return ClassMatch(new_class, 1.0)
 
     def _find_classes_matches_by_name(self, old_classes_pool: dict, new_classes_pool: dict):
@@ -49,10 +47,13 @@ class ClassMatcher:
         """
         if not (isinstance(old_classes_pool, dict) and isinstance(new_classes_pool, dict)):
             raise TypeError("classes_pool should be a dict")
-        for class_key in old_classes_pool:
-            class_match = self._find_class_match_by_name(old_classes_pool, new_classes_pool, class_key)
+        # Convert keys to list to avoid RuntimeError: dictionary changed size during iteration
+        for class_key in list(old_classes_pool.keys()):
+            class_match = self._find_class_match_by_name(new_classes_pool, class_key)
             if class_match:
                 self.class_matches.append(ClassMatches(old_classes_pool[class_key], [class_match]))
+                del old_classes_pool[class_key]
+                del new_classes_pool[class_key]
 
     def _find_classes_matches_by_signature(self, old_classes_pool: ClassesPool,
                                            new_classes_pool: ClassesPool):

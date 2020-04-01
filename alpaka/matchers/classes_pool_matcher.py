@@ -12,7 +12,8 @@ class ClassesPoolMatcher:
         self._new_packages_dict: PackagesDict = dict(new_apk_info.packages_dict)
 
     def pop_matched_packages_classes_pools(self) -> Generator[ClassesPoolMatch, None, None]:
-        for package_key in self._old_packages_dict.keys():
+        # For efficiency always use pop_matched_packages_classes_pools first
+        for package_key in list(self._old_packages_dict.keys()):
             new_apk_package = self._new_packages_dict.get(package_key)
             if new_apk_package is not None:
                 if new_apk_package.is_obfuscated_name is False:
