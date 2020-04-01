@@ -22,4 +22,6 @@ class ApkDiffer:
 
     def find_classes_matches(self):
         class_matcher = ClassMatcher(self._old_apk_info, self._new_apk_info)
-        return class_matcher.find_classes_matches()
+        class_matcher.find_classes_matches()
+        # TODO: This line is for POC, in practice some class should store the matches and give API to get and show them
+        return class_matcher.class_matches

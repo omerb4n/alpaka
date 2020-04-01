@@ -16,7 +16,7 @@ class ClassMatcher:
         self._old_apk_info = old_apk_info
         self._new_apk_info = new_apk_info
         self._classes_pool_matcher = ClassesPoolMatcher(self._old_apk_info, self._new_apk_info)
-        self.class_matches = []
+        self.class_matches: List[ClassMatches] = []
         self._weighted_signature_distance_calculator = WeightedSignatureDistanceCalculator(0.2, 0.2, 0.2, 0.1, 0.1, 0.1,
                                                                                            0.1)
 
