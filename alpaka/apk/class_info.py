@@ -15,7 +15,7 @@ class ClassInfo:
     _signature: ClassSignature = None
 
     # TODO: The ClassSignatureCalculator should be configurable! this should be out of the class
-    CLASS_SIGNATURE_CALCULATOR = ClassSignatureCalculator(DummyObfuscationDetector())
+    CLASS_SIGNATURE_CALCULATOR = ClassSignatureCalculator(DummyObfuscationDetector(False))
 
     @staticmethod
     def get_class_name(class_name_prefix):
