@@ -31,7 +31,7 @@ class ClassesPoolMatcher:
         :return:
         """
         old_classes_chain_map = ChainMap(*self.all_classes_dicts_iter(self._old_packages_dict))
-        new_classes_chain_map = ChainMap(*self.all_classes_dicts_iter(self._old_packages_dict))
+        new_classes_chain_map = ChainMap(*self.all_classes_dicts_iter(self._new_packages_dict))
         return ClassesPoolMatch(old_classes_chain_map, new_classes_chain_map)
 
     @staticmethod
