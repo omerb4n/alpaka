@@ -6,7 +6,7 @@ from androguard.core.bytecodes.dvm import Instruction
 
 from alpaka.class_signature.signature import ClassSignature
 from alpaka.class_signature.simhash_utils import calculate_simhash
-from alpaka.obfuscation.types import ObfuscationDetector
+from alpaka.obfuscation_detection.base import ObfuscationDetector
 
 
 class ClassSignatureCalculator:
