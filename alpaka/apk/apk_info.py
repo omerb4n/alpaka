@@ -63,7 +63,7 @@ class ApkInfo:
             return self._packages_dict
         else:
             self._packages_dict = {
-                ROOT_PACKAGE: PackageInfo(ROOT_PACKAGE, False,
+                ROOT_PACKAGE: PackageInfo(ROOT_PACKAGE, True,
                                           {class_analysis.name: self._create_class_info(class_analysis) for
                                            class_analysis in self._classes.values()})}
             return self._packages_dict
