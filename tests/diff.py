@@ -2,6 +2,7 @@ from typing import Callable
 
 from alpaka.apk.analyzed_apk import AnalyzedApk
 from alpaka.apk_differ import ApkDiffer
+from alpaka.obfuscation.obfuscation import ClassNameObfuscationDetector, PackageNameObfuscationDetector
 
 
 def diff(old_apk_path: str, old_apk_session_path: str, new_apk_path: str, new_apk_session_path: str,
@@ -9,7 +10,7 @@ def diff(old_apk_path: str, old_apk_session_path: str, new_apk_path: str, new_ap
     old_apk = AnalyzedApk(old_apk_path, session_path=old_apk_session_path)
     new_apk = AnalyzedApk(new_apk_path, session_path=new_apk_session_path)
 
-    apk_differ = ApkDiffer(old_apk, new_apk)
+    apk_differ = ApkDiffer(old_apk, new_apk, PackageNameObfuscationDetector(), ClassNameObfuscationDetector())
     if class_filter:
         apk_differ.filter_classes(class_filter)
     apk_differ.pack()

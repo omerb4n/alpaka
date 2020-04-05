@@ -1,6 +1,7 @@
 from alpaka.apk.analyzed_apk import AnalyzedApk
 from alpaka.apk.apk_info import ApkInfo
 from alpaka.matchers.class_matcher import ClassMatcher
+from alpaka.obfuscation.types import ObfuscationDetector
 
 
 class ApkDiffer:
@@ -8,9 +9,11 @@ class ApkDiffer:
     Diffs between two AnalyzedApks using ApkInfo
     """
 
-    def __init__(self, old_apk: AnalyzedApk, new_apk: AnalyzedApk):
-        self._old_apk_info = ApkInfo(old_apk)
-        self._new_apk_info = ApkInfo(new_apk)
+    def __init__(self, old_apk: AnalyzedApk, new_apk: AnalyzedApk,
+                 package_name_obfuscation_detector: ObfuscationDetector,
+                 class_name_obfuscation_detector: ObfuscationDetector):
+        self._old_apk_info = ApkInfo(old_apk, package_name_obfuscation_detector, class_name_obfuscation_detector)
+        self._new_apk_info = ApkInfo(new_apk, package_name_obfuscation_detector, class_name_obfuscation_detector)
 
     def filter_classes(self, class_filter):
         self._old_apk_info.filter_classes(class_filter)
