@@ -1,6 +1,5 @@
-import os
+from tests.apks_config.apk_config import ApkConfig
+from tests.conftest import TOAST_APKS_PATH
 
-from tests.conftest import TOAST_APKS_PATH, AG_SESSIONS_PATH
-
-TOAST_BYE_APK_PATH = os.path.join(TOAST_APKS_PATH, 'bye.apk')
-TOAST_BYE_SESSION_PATH = os.path.join(AG_SESSIONS_PATH, 'bye.ag')
+APK_NAME = 'bye'
+TOAST_BYE_APK_CONFIG = ApkConfig(TOAST_APKS_PATH, APK_NAME)
