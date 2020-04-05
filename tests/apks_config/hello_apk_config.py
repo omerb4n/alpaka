@@ -1,13 +1,12 @@
-import os
-
 import pytest
 from androguard.core.analysis.analysis import ClassAnalysis
 
 from alpaka.apk.analyzed_apk import AnalyzedApk
-from tests.conftest import TOAST_APKS_PATH, AG_SESSIONS_PATH
+from tests.apks_config.apk_config import ApkConfig
+from tests.conftest import TOAST_APKS_PATH
 
-TOAST_HELLO_APK_PATH = os.path.join(TOAST_APKS_PATH, 'hello.apk')
-TOAST_HELLO_SESSION_PATH = os.path.join(AG_SESSIONS_PATH, 'hello.ag')
+APK_NAME = 'hello'
+TOAST_HELLO_APK_CONFIG = ApkConfig(TOAST_APKS_PATH, APK_NAME)
 
 MAIN_APPLICATION_PACKAGE = 'Lcom/example/myapplication'
 MAIN_ACTIVIY = 'Lcom/example/myapplication/MainActivity;'
@@ -15,7 +14,7 @@ MAIN_ACTIVIY = 'Lcom/example/myapplication/MainActivity;'
 
 @pytest.fixture(scope='session')
 def hello_analyzed_apk_fixture() -> AnalyzedApk:
-    return AnalyzedApk(TOAST_HELLO_APK_PATH, session_path=TOAST_HELLO_SESSION_PATH)
+    return AnalyzedApk(TOAST_HELLO_APK_CONFIG.apk_path, session_path=TOAST_HELLO_APK_CONFIG.session_path)
 
 
 @pytest.fixture(scope='session')
