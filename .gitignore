@@ -2,3 +2,6 @@
 venv
 tests/test_files/ag_sessions
 *__pycache__
+
+# ignore tests apks
+tests/test_files/apks
