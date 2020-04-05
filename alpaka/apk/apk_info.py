@@ -65,7 +65,7 @@ class ApkInfo:
             self._packages_dict = {
                 ROOT_PACKAGE: PackageInfo(ROOT_PACKAGE, False,
                                           {class_analysis.name: self._create_class_info(class_analysis) for
-                                           class_analysis in self._classes})}
+                                           class_analysis in self._classes.values()})}
             return self._packages_dict
 
     def generate_parent_packages_dict(self, package_name_prefix) -> dict:
