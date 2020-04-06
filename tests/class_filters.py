@@ -22,6 +22,8 @@ def primitive_class_filter(class_name_prefix: str, _class_analysis: ClassAnalysi
 
 
 def android_class_filter(class_name_prefix: str, class_analysis: ClassAnalysis):
+    if class_analysis.is_external():
+        return False
     for candidate in CUSTOM_ANDROID_PACKAGES:
         if class_name_prefix.startswith(candidate):
             return False
