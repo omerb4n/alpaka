@@ -1,4 +1,5 @@
 from abc import ABCMeta, abstractmethod
+from dataclasses import dataclass
 
 import simhash
 
@@ -18,25 +19,16 @@ class SignatureDistanceCalculator(metaclass=ABCMeta):
         raise NotImplementedError()
 
 
+@dataclass(eq=False, order=False, frozen=True)
 class WeightedSignatureDistanceCalculator(SignatureDistanceCalculator):
 
-    def __init__(
-            self,
-            member_count_weight: float,
-            method_count_weight: float,
-            instructions_count_weight: float,
-            members_simhash_weight: float,
-            methods_params_simhash_weight: float,
-            methods_returns_simhash_weight: float,
-            instructions_simhash_weight: float,
-    ):
-        self.member_count_weight = member_count_weight
-        self.instructions_count_weight = instructions_count_weight
-        self.method_count_weight = method_count_weight
-        self.members_simhash_weight = members_simhash_weight
-        self.methods_params_simhash_weight = methods_params_simhash_weight
-        self.methods_returns_simhash_weight = methods_returns_simhash_weight
-        self.instructions_simhash_weight = instructions_simhash_weight
+    member_count_weight: float
+    method_count_weight: float
+    instructions_count_weight: float
+    members_simhash_weight: float
+    methods_params_simhash_weight: float
+    methods_returns_simhash_weight: float
+    instructions_simhash_weight: float
 
     def distance(self, sig1: ClassSignature, sig2: ClassSignature) -> float:
         return sum((
