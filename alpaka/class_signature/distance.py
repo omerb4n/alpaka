@@ -29,6 +29,9 @@ class WeightedSignatureDistanceCalculator(SignatureDistanceCalculator):
     methods_params_simhash_weight: float
     methods_returns_simhash_weight: float
     instructions_simhash_weight: float
+    implemented_interfaces_count_wight: int
+    implemented_interfaces_simhash_wight: int
+    superclass_hash_wight: int
 
     def distance(self, sig1: ClassSignature, sig2: ClassSignature) -> float:
         return sum((
@@ -39,4 +42,7 @@ class WeightedSignatureDistanceCalculator(SignatureDistanceCalculator):
             self.methods_params_simhash_weight * simhash.num_differing_bits(sig1.methods_params_simhash, sig2.methods_params_simhash),
             self.methods_returns_simhash_weight * simhash.num_differing_bits(sig1.methods_returns_simhash, sig2.methods_returns_simhash),
             self.instructions_simhash_weight * calculate_distance(sig1.instructions_simhash, sig2.instructions_simhash),
+            self.implemented_interfaces_count_wight * abs(sig2.implemented_interfaces_count - sig1.implemented_interfaces_count),
+            self.implemented_interfaces_simhash_wight * simhash.num_differing_bits(sig1.implemented_interfaces_simhash, sig2.implemented_interfaces_simhash),
+            self.superclass_hash_wight if sig2.superclass_hash == sig1.superclass_hash else 0,
         ))

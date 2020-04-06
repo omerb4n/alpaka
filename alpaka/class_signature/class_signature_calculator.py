@@ -32,6 +32,9 @@ class ClassSignatureCalculator:
             methods_params_simhash=self._calc_methods_params_simhash(class_analysis),
             methods_returns_simhash=self._calc_methods_returns_simhash(class_analysis),
             instructions_simhash=self._calc_instructions_simhash(class_analysis),
+            implemented_interfaces_count=self._get_implemented_interfaces_count(class_analysis),
+            implemented_interfaces_simhash=self._calc_implemented_interfaces_simhash(class_analysis),
+            superclass_hash=self._calc_superclass_hash(class_analysis),
         )
 
     @classmethod
@@ -89,3 +92,19 @@ class ClassSignatureCalculator:
         for method in class_analysis.get_vm_class().get_methods():
             for instruction in method.get_instructions():
                 yield instruction
+
+    @classmethod
+    def _get_implemented_interfaces_count(cls, class_analysis) -> int:
+        return len(class_analysis.implements)
+
+    def _calc_implemented_interfaces_simhash(self, class_analysis) -> int:
+        return calculate_simhash((
+            interface_descriptor
+            for interface_descriptor in class_analysis.implements
+            if not self._obfuscation_detector.is_obfuscated(interface_descriptor)
+        ))
+
+    def _calc_superclass_hash(self, class_analysis) -> int:
+        if self._obfuscation_detector.is_obfuscated(class_analysis.extends):
+            return 0
+        return hash(class_analysis.extends)

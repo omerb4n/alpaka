@@ -10,3 +10,6 @@ class ClassSignature:
     methods_params_simhash: int
     methods_returns_simhash: int
     instructions_simhash: int
+    implemented_interfaces_count: int
+    implemented_interfaces_simhash: int
+    superclass_hash: int
