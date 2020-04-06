@@ -43,13 +43,11 @@ class ApkInfo:
         self._packages_dict[package_name_prefix] = self._create_package_info(package_name_prefix)
 
     def _create_package_info(self, package_name_prefix) -> PackageInfo:
-        package_name = PackageInfo.get_package_name(package_name_prefix)
-        is_obfuscated_name = self._package_name_obfuscation_detector.is_obfuscated(package_name)
+        is_obfuscated_name = self._package_name_obfuscation_detector.is_obfuscated(package_name_prefix)
         return PackageInfo(package_name_prefix, is_obfuscated_name)
 
     def _create_class_info(self, class_analysis: ClassAnalysis) -> ClassInfo:
-        class_name = ClassInfo.get_class_name(class_analysis.name)
-        is_obfuscated_name = self._class_name_obfuscation_detector.is_obfuscated(class_name)
+        is_obfuscated_name = self._class_name_obfuscation_detector.is_obfuscated(class_analysis.name)
         return ClassInfo(class_analysis, is_obfuscated_name)
 
     @property
