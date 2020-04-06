@@ -16,7 +16,7 @@ class SimpleObfuscationDetector(ObfuscationDetector):
     false-positive errors don't affect the signature accuracy as much, and this detector is built with that goal in mind.
     """
 
-    WORD_REGEX = re.compile(r'(?:[A-Z](?=[A-Z]|$))+|[a-zA-Z][a-z]*')
+    WORD_REGEX = re.compile(r'(?:[A-Z](?=[^a-z]|$))+|[a-zA-Z][a-z]*')
 
     def __init__(self, old_analysis: Analysis, new_analysis: Analysis, dictionary: enchant.Dict = enchant.Dict('en_US')):
         self._old_analysis = old_analysis
@@ -48,9 +48,9 @@ class SimpleObfuscationDetector(ObfuscationDetector):
     def _is_all_correct_words(self, class_descriptor):
         return all(
             len(word) >= 2 and word in self._dictionary
-            for word in self._separate_to_words(class_descriptor)
+            for word in self._separate_class_descriptor_to_words(class_descriptor)
         )
 
     @classmethod
-    def _separate_to_words(cls, identifier: str) -> List[str]:
-        return cls.WORD_REGEX.findall(identifier)
+    def _separate_class_descriptor_to_words(cls, class_descriptor: str) -> List[str]:
+        return cls.WORD_REGEX.findall(class_descriptor, pos=1)

@@ -24,7 +24,7 @@ def test_is_obfuscated(value, expected_result):
 def test_is_all_correct_words():
     dictionary = MagicMock()
     detector = SimpleObfuscationDetector(Mock(), Mock(), dictionary)
-    detector._separate_to_words = Mock(return_value=['Foo', 'Bar', 'Baz'])
+    detector._separate_class_descriptor_to_words = Mock(return_value=['Foo', 'Bar', 'Baz'])
 
     dictionary.__contains__.return_value = True
     assert detector._is_all_correct_words('')
@@ -39,14 +39,14 @@ def test_is_all_correct_words():
 
 
 @pytest.mark.parametrize(('string', 'expected_words'), (
-    ('FooBar', ['Foo', 'Bar']),
-    ('fooBar', ['foo', 'Bar']),
-    ('FooBarBaz', ['Foo', 'Bar', 'Baz']),
-    ('UPPERCASESomething', ['UPPERCASE', 'Something']),
-    ('CamelCaseUPPERCASECamelCase', ['Camel', 'Case', 'UPPERCASE', 'Camel', 'Case']),
-    ('AtTheEndThereWillBeUPPERCASE', ['At', 'The', 'End', 'There', 'Will', 'Be', 'UPPERCASE']),
-    ('words-with_Special/Characters$between=them+CamelCase', ['words', 'with', 'Special', 'Characters', 'between', 'them', 'Camel', 'Case']),
-    ('words5with543numbers', ['words', 'with', 'numbers']),
+    ('LFooBar;', ['Foo', 'Bar']),
+    ('LfooBar;', ['foo', 'Bar']),
+    ('LFooBarBaz;', ['Foo', 'Bar', 'Baz']),
+    ('LUPPERCASESomething;', ['UPPERCASE', 'Something']),
+    ('LCamelCaseUPPERCASECamelCase;', ['Camel', 'Case', 'UPPERCASE', 'Camel', 'Case']),
+    ('LAtTheEndThereWillBeUPPERCASE;', ['At', 'The', 'End', 'There', 'Will', 'Be', 'UPPERCASE']),
+    ('Lwords-with_Special/Characters$between=them+CamelCase;', ['words', 'with', 'Special', 'Characters', 'between', 'them', 'Camel', 'Case']),
+    ('Lwords5with543numbers;', ['words', 'with', 'numbers']),
 ))
-def test_separate_to_words(string, expected_words):
-    assert SimpleObfuscationDetector._separate_to_words(string) == expected_words
+def test_separate_class_descriptor_to_words(string, expected_words):
+    assert SimpleObfuscationDetector._separate_class_descriptor_to_words(string) == expected_words
