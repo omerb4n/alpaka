@@ -6,7 +6,7 @@ from alpaka.apk.analyzed_apk import AnalyzedApk
 from alpaka.apk.class_info import ClassInfo
 from alpaka.apk.package_info import PackageInfo
 from alpaka.apk.config import ROOT_PACKAGE
-from alpaka.obfuscation.obfuscation import PackageNameObfuscationDetector, ClassNameObfuscationDetector
+from alpaka.obfuscation_detection.score_based_detection import PackageNameObfuscationDetector, ClassNameObfuscationDetector
 from alpaka.utils import filter_dict
 
 PackagesDict = Dict[str, PackageInfo]
