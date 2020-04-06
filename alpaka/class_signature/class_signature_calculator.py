@@ -30,7 +30,7 @@ class ClassSignatureCalculator:
             instructions_count=self._get_instructions_count(class_analysis),
             members_simhash=self._calc_members_simhash(class_analysis),
             methods_params_simhash=self._calc_methods_params_simhash(class_analysis),
-            method_returns_simhash=self._calc_methods_returns_simhash(class_analysis),
+            methods_returns_simhash=self._calc_methods_returns_simhash(class_analysis),
             instructions_simhash=self._calc_instructions_simhash(class_analysis),
         )
 
