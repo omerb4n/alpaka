@@ -39,7 +39,10 @@ class ClassSignatureCalculator:
 
     @classmethod
     def _get_member_count(cls, class_analysis: ClassAnalysis) -> int:
-        return len(class_analysis.get_fields())
+        return (
+            class_analysis.orig_class.class_data_item.get_instance_fields_size()
+            + class_analysis.orig_class.class_data_item.get_static_fields_size()
+        )
 
     @classmethod
     def _get_method_count(cls, class_analysis: ClassAnalysis) -> int:
@@ -50,10 +53,11 @@ class ClassSignatureCalculator:
         return sum((1 for _instruction in cls.iterate_class_instruction(class_analysis)))
 
     def _calc_members_simhash(self, class_analysis: ClassAnalysis) -> int:
+        members = class_analysis.orig_class.class_data_item.get_fields()
         return calculate_simhash((
-            type_descriptor for member in class_analysis.get_fields()
+            type_descriptor for member in members
             if not self._obfuscation_detector.is_obfuscated(
-                type_descriptor := member.field.get_descriptor()
+                type_descriptor := member.class_name
             )
         ))
 
