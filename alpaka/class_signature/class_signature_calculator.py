@@ -5,7 +5,7 @@ from androguard.core.analysis.analysis import ClassAnalysis
 from androguard.core.bytecodes.dvm import Instruction
 
 from alpaka.class_signature.signature import ClassSignature
-from alpaka.class_signature.simhash_utils import calculate_simhash
+from alpaka.class_signature.simhash_utils import calculate_simhash, calculate_shingle_simhash
 from alpaka.obfuscation.types import ObfuscationDetector
 
 
@@ -32,6 +32,7 @@ class ClassSignatureCalculator:
             methods_params_simhash=self._calc_methods_params_simhash(class_analysis),
             methods_returns_simhash=self._calc_methods_returns_simhash(class_analysis),
             instructions_simhash=self._calc_instructions_simhash(class_analysis),
+            instruction_shingles_simhash=self._calc_instruction_shingles_simhash(class_analysis),
             implemented_interfaces_count=self._get_implemented_interfaces_count(class_analysis),
             implemented_interfaces_simhash=self._calc_implemented_interfaces_simhash(class_analysis),
             superclass_hash=self._calc_superclass_hash(class_analysis),
@@ -89,6 +90,11 @@ class ClassSignatureCalculator:
     @classmethod
     def _calc_instructions_simhash(cls, class_analysis: ClassAnalysis):
         return calculate_simhash(
+            (instruction.get_name() for instruction in cls.iterate_class_instruction(class_analysis)))
+
+    @classmethod
+    def _calc_instruction_shingles_simhash(cls, class_analysis: ClassAnalysis):
+        return calculate_shingle_simhash(
             (instruction.get_name() for instruction in cls.iterate_class_instruction(class_analysis)))
 
     @staticmethod
