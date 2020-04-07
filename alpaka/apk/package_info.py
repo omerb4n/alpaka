@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Dict
 
 from alpaka.apk.class_info import ClassInfo
+from alpaka.constants import PACKAGE_NAME_SEPARATOR, CLASS_JAVA_KEYWORD
 from alpaka.utils import get_domain_name, get_subdomain
 
 ClassesDict = Dict[str, ClassInfo]
@@ -25,7 +26,10 @@ class PackageInfo:
 
     @staticmethod
     def get_package_name(package_name_prefix):
-        return get_domain_name(package_name_prefix)
+        if PACKAGE_NAME_SEPARATOR in package_name_prefix:
+            return get_domain_name(package_name_prefix)
+        else:
+            return package_name_prefix[package_name_prefix.find(CLASS_JAVA_KEYWORD) + 1:]
 
     def __repr__(self):
         return "~Obfuscated" if self.is_obfuscated_name else ""

@@ -7,11 +7,13 @@ class ObfuscationDetector(abc.ABC):
 
 
 class DummyObfuscationDetector(ObfuscationDetector):
-
     """
-    A dummy obfuscation_detection detector, that declares anything as not obfuscated.
+    A dummy obfuscation detector, that declares anything as not obfuscated.
     Created for the POC
     """
 
+    def __init__(self, is_obfuscated: bool):
+        self._is_obfuscated: bool = is_obfuscated
+
     def is_obfuscated(self, obj) -> bool:
-        return False
+        return self._is_obfuscated

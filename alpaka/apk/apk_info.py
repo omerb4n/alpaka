@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Optional
 
 from androguard.core.analysis.analysis import ClassAnalysis
 
@@ -6,7 +6,7 @@ from alpaka.apk.analyzed_apk import AnalyzedApk
 from alpaka.apk.class_info import ClassInfo
 from alpaka.apk.package_info import PackageInfo
 from alpaka.apk.config import ROOT_PACKAGE
-from alpaka.obfuscation_detection.score_based_detection import PackageNameObfuscationDetector, ClassNameObfuscationDetector
+from alpaka.obfuscation_detection.score_based_detection import ObfuscationDetector
 from alpaka.utils import filter_dict
 
 PackagesDict = Dict[str, PackageInfo]
@@ -17,16 +17,15 @@ class ApkInfo:
     Holds and manipulates information about the apk's packages, classes etc.
     """
 
-    def __init__(self, analyzed_apk: AnalyzedApk, assume_obfuscated: bool = True,
-                 use_obfuscation_detectors: bool = True):
+    def __init__(self, analyzed_apk: AnalyzedApk,
+                 package_name_obfuscation_detector: ObfuscationDetector,
+                 class_name_obfuscation_detector: ObfuscationDetector):
         self._analyzed_apk = analyzed_apk
-        self._assume_obfuscated = assume_obfuscated
-        self._use_obfuscation_detectors = use_obfuscation_detectors
         self._classes = self._analyzed_apk.analysis.classes
-        self._packages_dict: PackagesDict = None
+        self._packages_dict: Optional[PackagesDict] = None
 
-        self._package_name_obfuscation_detector = PackageNameObfuscationDetector()
-        self._class_name_obfuscation_detector = ClassNameObfuscationDetector()
+        self._package_name_obfuscation_detector: ObfuscationDetector = package_name_obfuscation_detector
+        self._class_name_obfuscation_detector: ObfuscationDetector = class_name_obfuscation_detector
 
     def filter_classes(self, class_filter):
         self._classes = filter_dict(self._analyzed_apk.analysis.classes, class_filter)
@@ -44,17 +43,11 @@ class ApkInfo:
         self._packages_dict[package_name_prefix] = self._create_package_info(package_name_prefix)
 
     def _create_package_info(self, package_name_prefix) -> PackageInfo:
-        is_obfuscated_name = self._assume_obfuscated
-        if self._use_obfuscation_detectors:
-            package_name = PackageInfo.get_package_name(package_name_prefix)
-            is_obfuscated_name = self._package_name_obfuscation_detector.is_obfuscated(package_name)
+        is_obfuscated_name = self._package_name_obfuscation_detector.is_obfuscated(package_name_prefix)
         return PackageInfo(package_name_prefix, is_obfuscated_name)
 
     def _create_class_info(self, class_analysis: ClassAnalysis) -> ClassInfo:
-        is_obfuscated_name = self._assume_obfuscated
-        if self._use_obfuscation_detectors:
-            class_name = ClassInfo.get_class_name(class_analysis.name)
-            is_obfuscated_name = self._class_name_obfuscation_detector.is_obfuscated(class_name)
+        is_obfuscated_name = self._class_name_obfuscation_detector.is_obfuscated(class_analysis.name)
         return ClassInfo(class_analysis, is_obfuscated_name)
 
     @property
@@ -63,9 +56,9 @@ class ApkInfo:
             return self._packages_dict
         else:
             self._packages_dict = {
-                ROOT_PACKAGE: PackageInfo(ROOT_PACKAGE, False,
+                ROOT_PACKAGE: PackageInfo(ROOT_PACKAGE, True,
                                           {class_analysis.name: self._create_class_info(class_analysis) for
-                                           class_analysis in self._classes})}
+                                           class_analysis in self._classes.values()})}
             return self._packages_dict
 
     def generate_parent_packages_dict(self, package_name_prefix) -> dict:

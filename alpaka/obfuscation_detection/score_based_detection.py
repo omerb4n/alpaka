@@ -5,6 +5,8 @@ from typing import Sized, Sequence, List
 
 import enchant
 
+from alpaka.apk.class_info import ClassInfo
+from alpaka.apk.package_info import PackageInfo
 from alpaka.exceptions import FormatError
 from alpaka.obfuscation_detection.base import ObfuscationDetector
 from alpaka.utils import calc_average, split_by_separators
@@ -177,7 +179,8 @@ class PackageNameObfuscationDetector(ObfuscationDetector):
         word_count_score_weight = ScoreWeight(
             LengthScore(self.BEST_WORDS_COUNT, self.WORST_WORDS_COUNT, self.WORDS_COUNT_GROWTH),
             self.WORDS_COUNT_WEIGHT)
-        characters_score_weight = ScoreWeight(CharactersScore(list(string.ascii_letters) + ['_']), self.CHARACTERS_WEIGHT)
+        characters_score_weight = ScoreWeight(CharactersScore(list(string.ascii_letters) + ['_']),
+                                              self.CHARACTERS_WEIGHT)
 
         underscore_score_weight = ScoreWeight(
             UnderscoreNameGrade([average_score_score_weight, word_count_score_weight]),
@@ -185,7 +188,8 @@ class PackageNameObfuscationDetector(ObfuscationDetector):
         self.grade_system = GradeSystem([underscore_score_weight, characters_score_weight],
                                         self.PASS_SCORE)
 
-    def is_obfuscated(self, package_name: str):
+    def is_obfuscated(self, package_name_prefix: str):
+        package_name = PackageInfo.get_package_name(package_name_prefix)
         return not self.grade_system.did_pass(package_name)
 
 
@@ -228,13 +232,15 @@ class ClassNameObfuscationDetector(ObfuscationDetector):
         word_count_score_weight = ScoreWeight(
             LengthScore(self.BEST_WORDS_COUNT, self.WORST_WORDS_COUNT, self.WORDS_COUNT_GROWTH),
             self.WORDS_COUNT_WEIGHT)
-        characters_score_weight = ScoreWeight(CharactersScore(list(string.ascii_letters) + ['$']), self.CHARACTERS_WEIGHT)
+        characters_score_weight = ScoreWeight(CharactersScore(list(string.ascii_letters) + ['$']),
+                                              self.CHARACTERS_WEIGHT)
 
         upper_camel_case_score_weight = ScoreWeight(
             UpperCamelCaseGrade([average_score_score_weight, word_count_score_weight]), self.UPPER_CAMEL_CASE_WEIGHT)
         self.class_name_grade = GradeSystem([upper_camel_case_score_weight, characters_score_weight], self.PASS_SCORE)
 
-    def is_obfuscated(self, class_name: str):
+    def is_obfuscated(self, class_name_prefix: str):
+        class_name = ClassInfo.get_class_name(class_name_prefix)
         if self.is_known_obfuscated_pattern(class_name):
             return True
         else:
@@ -267,7 +273,8 @@ class WordObfuscationDetector(ObfuscationDetector):
         length_score_weight = ScoreWeight(
             LengthScore(self.BEST_LENGTH, self.WORST_LENGTH, self.LENGTH_SCORE_GROWTH), self.LENGTH_SCORE_WEIGHT)
         is_word_english_score_weight = ScoreWeight(IsWordEnglishScore(), self.IS_WORD_ENGLISH_SCORE_WEIGHT)
-        word_characters_score_weight = ScoreWeight(CharactersScore(list(string.ascii_letters)), self.WORD_CHARACTERS_SCORE_WEIGHT)
+        word_characters_score_weight = ScoreWeight(CharactersScore(list(string.ascii_letters)),
+                                                   self.WORD_CHARACTERS_SCORE_WEIGHT)
         self.word_grade_system = GradeSystem(
             [length_score_weight, is_word_english_score_weight, word_characters_score_weight], self.PASS_GRADE)
 
