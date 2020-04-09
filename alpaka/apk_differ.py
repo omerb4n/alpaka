@@ -1,6 +1,6 @@
 from alpaka.apk.analyzed_apk import AnalyzedApk
 from alpaka.apk.apk_info import ApkInfo
-from alpaka.matchers.class_matcher import ClassMatcher
+from alpaka.matchers.class_matcher import ClassMatcher, ClassesMatches
 from alpaka.obfuscation_detection.base import ObfuscationDetector
 
 
@@ -23,7 +23,7 @@ class ApkDiffer:
         self._old_apk_info.pack()
         self._new_apk_info.pack()
 
-    def find_classes_matches(self):
+    def find_classes_matches(self) -> ClassesMatches:
         class_matcher = ClassMatcher(self._old_apk_info, self._new_apk_info)
         class_matcher.find_classes_matches()
         # TODO: This line is for POC, in practice some class should store the matches and give API to get and show them
