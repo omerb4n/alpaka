@@ -18,7 +18,7 @@ class ClassMatcher:
         self._old_apk_info = old_apk_info
         self._new_apk_info = new_apk_info
         self._classes_pool_matcher = ClassesPoolMatcher(self._old_apk_info, self._new_apk_info)
-        self.class_matches: ClassesMatches = {}
+        self.classes_matches: ClassesMatches = {}
         self._weighted_signature_distance_calculator = WeightedSignatureDistanceCalculator(0.2, 0.2, 0.2, 0.1, 0.1, 0.1,
                                                                                            0.1)
 
@@ -53,7 +53,7 @@ class ClassMatcher:
         for class_key in list(old_classes_pool.keys()):
             class_match = self._find_class_match_by_name(new_classes_pool, class_key)
             if class_match:
-                self.class_matches[class_key] = ClassMatches(old_classes_pool[class_key], [class_match])
+                self.classes_matches[class_key] = ClassMatches(old_classes_pool[class_key], [class_match])
                 del old_classes_pool[class_key]
                 del new_classes_pool[class_key]
 
@@ -75,6 +75,6 @@ class ClassMatcher:
             closest_distances_per_class = heapq.nsmallest(NUMBER_OF_CLASSES_TO_FIND_BY_SIGNATURE, distances_per_class,
                                                           key=lambda distance_per_class: distance_per_class[1])
 
-            self.class_matches[old_class_info.analysis.name] = ClassMatches(old_class_info, [
+            self.classes_matches[old_class_info.analysis.name] = ClassMatches(old_class_info, [
                 ClassMatch(distance_per_class[0], distance_per_class[1]) for
                 distance_per_class in closest_distances_per_class])
