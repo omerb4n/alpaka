@@ -42,4 +42,5 @@ def test_facebook_apk():
     apk_differ = ApkDiffer(old_apk, new_apk, FacebookPackageNameOD(), FacebookClassNameOD())
     apk_differ.filter_classes(android_class_filter)
     apk_differ.pack()
-    print(apk_differ.find_classes_matches())
+    apk_differ.find_classes_matches()
+    print(apk_differ.get_classes_matches_json(indent=4))

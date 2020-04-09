@@ -15,5 +15,5 @@ def diff(old_apk_config: ApkConfig, new_apk_config: ApkConfig, class_filter: Cal
     if class_filter:
         apk_differ.filter_classes(class_filter)
     apk_differ.pack()
-    print(apk_differ.find_classes_matches())
-    pass
+    apk_differ.find_classes_matches()
+    print(apk_differ.get_classes_matches_json(indent=4))

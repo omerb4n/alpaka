@@ -13,4 +13,4 @@ class ClassMatch:
 @dataclass
 class ClassMatches:
     class_info: ClassInfo
-    class_matches: List[ClassMatch]
+    matches: List[ClassMatch]
