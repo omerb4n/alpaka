@@ -1,4 +1,4 @@
-qimport string
+import string
 
 from alpaka.utils import split_by_separators
 

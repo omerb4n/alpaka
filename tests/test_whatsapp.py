@@ -13,4 +13,7 @@ def filter_whatsapp_classes(class_name_prefix: str, _class_analysis: ClassAnalys
 
 
 def test_whatsapp_apk():
-    diff(WHATSAPP_2_20_89_APK_CONFIG, WHATSAPP_2_20_108_APK_CONFIG, filter_whatsapp_classes)
+    # TODO: The following line will fail on "Windows fatal exception: stack overflow".
+    #  Problem occurs when Androguard will try to pickle dump the session
+    # diff(WHATSAPP_2_20_89_APK_CONFIG, WHATSAPP_2_20_108_APK_CONFIG, filter_whatsapp_classes)
+    assert False
