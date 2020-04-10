@@ -18,7 +18,11 @@ class ClassInfo:
     CLASS_SIGNATURE_CALCULATOR = ClassSignatureCalculator(DummyObfuscationDetector(False))
 
     @staticmethod
-    def get_class_name(class_name_prefix):
+    def get_class_name(class_name_prefix) -> str:
+        """
+        get the class name (without prefix) of the given class_name_prefix.
+        e.g. "Lcom/example/myapplication/R$attr;" -> "R$attr"
+        """
         class_name = get_domain_name(class_name_prefix)
         if class_name[-1] == ';':
             class_name = class_name[:-1]
