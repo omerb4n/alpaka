@@ -4,12 +4,11 @@ from typing import Optional
 from alpaka.apk.apk_info import ApkInfo
 from alpaka.apk.class_info import ClassInfo
 from alpaka.class_signature.distance import WeightedSignatureDistanceCalculator
+from alpaka.config import MAXIMUM_SIGNATURE_MATCHES
 from alpaka.matchers.class_matches import ClassMatches, ClassMatch
 from alpaka.matchers.classes_matches import ClassesMatchesDict, ClassesMatches
 from alpaka.matchers.classes_pool_match import ClassesPool
 from alpaka.matchers.classes_pool_matcher import ClassesPoolMatcher
-
-NUMBER_OF_CLASSES_TO_FIND_BY_SIGNATURE = 3
 
 
 class ClassMatcher:
@@ -18,7 +17,9 @@ class ClassMatcher:
     A class match is a match between a class in one apk to another class in the other apk.
     The match is done by class name or by similarities (signatue) between the classes.
     """
-    def __init__(self, old_apk_info: ApkInfo, new_apk_info: ApkInfo):
+
+    def __init__(self, old_apk_info: ApkInfo, new_apk_info: ApkInfo,
+                 maximum_signature_matches=MAXIMUM_SIGNATURE_MATCHES):
         """
         Receives the two apk infos that their classes should be matched
         Before initializing the ClassMatcher, Filtering and packing the classes in both apks is recommend.
@@ -32,6 +33,7 @@ class ClassMatcher:
         # TODO: Add a parameter WeightedSignatureDistanceCalculator in the __init__ funciton
         self._weighted_signature_distance_calculator = WeightedSignatureDistanceCalculator(0.2, 0.2, 0.2, 0.1, 0.1, 0.1,
                                                                                            0.1)
+        self._maximum_signature_matches = maximum_signature_matches
 
     def find_classes_matches(self) -> ClassesMatches:
         """
@@ -88,7 +90,7 @@ class ClassMatcher:
                 (new_class,
                  self._weighted_signature_distance_calculator.distance(old_class_signature, new_class.signature))
                 for new_class in new_classes_pool.values())
-            closest_distances_per_class = heapq.nsmallest(NUMBER_OF_CLASSES_TO_FIND_BY_SIGNATURE, distances_per_class,
+            closest_distances_per_class = heapq.nsmallest(self._maximum_signature_matches, distances_per_class,
                                                           key=lambda distance_per_class: distance_per_class[1])
 
             self._classes_matches_dict[old_class_info.analysis.name] = ClassMatches(old_class_info, [
