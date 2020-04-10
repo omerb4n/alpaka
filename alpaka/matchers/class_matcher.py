@@ -13,15 +13,36 @@ NUMBER_OF_CLASSES_TO_FIND_BY_SIGNATURE = 3
 
 
 class ClassMatcher:
+    """
+    Responsible to find classes matches between two different apk infos.
+    A class match is a match between a class in one apk to another class in the other apk.
+    The match is done by class name or by similarities (signatue) between the classes.
+    """
     def __init__(self, old_apk_info: ApkInfo, new_apk_info: ApkInfo):
+        """
+        Receives the two apk infos that their classes should be matched
+        Before initializing the ClassMatcher, Filtering and packing the classes in both apks is recommend.
+        :param old_apk_info: the older apk
+        :param new_apk_info:
+        """
         self._old_apk_info = old_apk_info
         self._new_apk_info = new_apk_info
         self._classes_pool_matcher = ClassesPoolMatcher(self._old_apk_info, self._new_apk_info)
         self._classes_matches_dict: ClassesMatchesDict = {}
+        # TODO: Add a parameter WeightedSignatureDistanceCalculator in the __init__ funciton
         self._weighted_signature_distance_calculator = WeightedSignatureDistanceCalculator(0.2, 0.2, 0.2, 0.1, 0.1, 0.1,
                                                                                            0.1)
 
     def find_classes_matches(self) -> ClassesMatches:
+        """
+        Iterates through all classes pools and tries to find matches by name:
+            * First, iterate all matched packages classes pools and try to find matches:
+                * by class name
+                * then by signatures distance
+            * Then try to find matches on all the remaining classes pool by signatures distance
+        :return: ClassesMatches
+        """
+        self._classes_matches_dict = {}
         # For efficiency always use pop_matched_packages_classes_pools first
         for classes_pool_match in self._classes_pool_matcher.pop_matched_packages_classes_pools():
             self._find_classes_matches_by_name(classes_pool_match.old_classes_pool, classes_pool_match.new_classes_pool)
@@ -42,10 +63,8 @@ class ClassMatcher:
 
     def _find_classes_matches_by_name(self, old_classes_pool: dict, new_classes_pool: dict):
         """
-        Received classes pools will be filtered from matches thus, it's important they will be dicts.
-        :param old_classes_pool:
-        :param new_classes_pool:
-        :return:
+        Finds classes matches by name and add the ClassMatches to self._classes_matches_dict
+        Received classes pools will be filtered from matches thus, it's important they will be dicts and not ChainMaps.
         """
         if not (isinstance(old_classes_pool, dict) and isinstance(new_classes_pool, dict)):
             raise TypeError("classes_pool should be a dict")
@@ -61,10 +80,7 @@ class ClassMatcher:
                                            new_classes_pool: ClassesPool):
         """
         For each class in old_classes_pool find the closest classes in the new_classes_pool.
-        Appends the found ClassMatches to self.class_matches
-        :param old_classes_pool:
-        :param new_classes_pool:
-        :return:
+        Appends the found ClassMatches to self._classes_matches_dict
         """
         for old_class_info in old_classes_pool.values():
             old_class_signature = old_class_info.signature
