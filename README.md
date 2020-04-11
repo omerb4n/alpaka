@@ -4,12 +4,12 @@
 
 Alpaka is an APK diff tool written in Python 3.
 
-It mainly uses [androguard](https://github.com/androguard) to analyze two apks (usually different versions of the same app) and then indicate any modification that was done between them.
+It mainly uses [androguard](https://github.com/androguard) to analyze two apks (usually different versions of the same app), then it indicates any modification that was done between them.
 
 The tool is still in development
 
 #### Obfuscated Apks
-Alpaka was built to work even if the APK was obfuscated.
+Alpaka was built to work even if the APK is obfuscated.
 It's up for the user to configure how the obfuscation detectors will work or use the default ones.
 
 ## Setup
@@ -29,40 +29,40 @@ Analyzing an APK is easily done by androguard. Alpaka's part is detecting the mo
 
 - The names and offsets of packages, classes, functions and variables inside the apk can be changed (either by obfuscation or manually by the developer).
     - Thus, in order to detect the modifications that were done on a given class, we first have to find the matching class in the other apk.
-    - Furthermore, matching between classes must be done by detecting structural similarities and can give false answers.
-- Modern Apks can be pretty big as a result the diff process must be efficient in memory and computation time.
+    - Furthermore, matching between classes must be done by detecting structural similarities; this method can yield false answers.
+- Modern Apks can be pretty big, as a result the diff process must be efficient in memory and computation time.
 
 
 To overcome the challenges above, alpaka's diff process is constructed from 3 stages:
 
-#### Stage 1: Filtering Classes
-Finding a class match in a `100,000` classes list can consume allot of resources and in the end give a false answer.
-hence, Filtering irrelevant classes from the known classes is very useful and efficient.
+#### Stage 1: Filtering Classes (Optional)
+Finding a class match in a `100,000` classes list can consume a lot of resources, and will probably yield a false answer.
+Hence, filtering irrelevant classes from the known classes is very useful and efficient.
 
-- it is always recommended to filter native Java and Android classes.
-- The user choose's which classes to filter
+- It is always recommended to filter native Java and Android classes.
+- The user chooses which classes to filter
 
-#### Stage 2: Matching Classes Pools
-Even if the number of classes was reduced to a much smaller number, looking for a match is a heavy O(n^2) computation.
+#### Stage 2: Matching Classes Pools (Optional)
+Looking for a class match is a heavy O(number_of_classes^2) computation, even if the number of classes was reduced by a filter.
 
-It is best to divide the classes in both apks to groups (called pools) that we can easily match.
+It is better to divide the classes in both apks to groups (called pools) that we can easily match.
 
-This way on the next stage, trying to find a match in a much more smaller and targeted group is better.
+After dividing the classes into pools, the class matching stage can search for a match in a smaller and targeted group, which will be more efficient and accurate.
 
 ##### Dividing To Pools By Packages
 Right now the only way to divide to pools is by packages.
 
 Packing the apk will group classes from the same Java package into a package object.
-then package objects can be used as pools and easily matched by name
+Then package objects can be used as pools and easily matched by name.
 
 Notes:
 - In case the package name was indicated as obfuscated by an ObfuscationDetector, it will not be matched. 
-- Alpaka lets the user decide whether he wants to pack the apk or not.
+- Alpaka lets the user decide whether he wants to pack the APK or not.
 
 ### Stage 3: Matching Classes
 Matching is done in two steps:
 1. Matching by class name (if it's not obfuscated)
-2. If the above step did not yield results, matching by class signature.
+2. If the above step did not yield results - matching by class signature.
 
 A class signature is made from structural properties, such as:
 - number of methods
@@ -74,11 +74,11 @@ A class signature is made from structural properties, such as:
 
 The similarity between classes is determined by the distance between their signatures.
 
-##### How Does A Class Signature Work:
-While properties like number of methods can be easily represented and differentiated, other properties like methods return types and class instructions are more complex.
+##### How Does a Class Signature Work:
+While properties like number of methods can be easily represented and differentiated, other properties, like methods return types and class instructions, are more complex.
 
-Must of the complex properties are represented by a simhash.
-Unlike other hashes, simhash is one where similar items are hashed to similar hash values.
+Most of the complex properties are represented by a Simhash.
+Unlike other hashes, Simhash is one where similar items are hashed to similar hash values.
 
 ## Code Examples
 ```python
@@ -90,8 +90,8 @@ def test_facebook_apk():
     
     # Initialize ApkDiffer with custom Obfuscation Detectors (OD)
     apk_differ = ApkDiffer(old_apk, new_apk, FacebookPackageNameOD(), FacebookClassNameOD())
-    apk_differ.filter_classes(android_class_filter) # Filter android and java classes
-    apk_differ.pack() # Dividing To Pools By Packages
+    apk_differ.filter_classes(android_class_filter) # Filter android and java classes (Optional)
+    apk_differ.pack() # Dividing To Pools By Packages (Optional)
     apk_differ.find_classes_matches() # Matching Classes
     print(apk_differ.get_classes_matches_json(indent=4)) 
 ```
@@ -121,3 +121,8 @@ The above code will output:
     # ...
 }
 ```
+
+## Tests
+Some of the tests require large APKs (Facebook, WhatsApp, etc.). These APKs are not included in the default branch.
+
+if you want to test them you should copy them from the '**tests/add_large_apks**' branch.
