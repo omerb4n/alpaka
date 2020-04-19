@@ -33,6 +33,8 @@ class WeightedSignatureDistanceCalculator(SignatureDistanceCalculator):
     implemented_interfaces_count_wight: float
     implemented_interfaces_simhash_wight: float
     superclass_hash_wight: float
+    string_literals_count_weight: float
+    string_literals_simhash_weight: float
 
     def distance(self, sig1: ClassSignature, sig2: ClassSignature) -> float:
         return sum((
@@ -47,4 +49,6 @@ class WeightedSignatureDistanceCalculator(SignatureDistanceCalculator):
             self.implemented_interfaces_count_wight * abs(sig2.implemented_interfaces_count - sig1.implemented_interfaces_count),
             self.implemented_interfaces_simhash_wight * simhash.num_differing_bits(sig1.implemented_interfaces_simhash, sig2.implemented_interfaces_simhash),
             self.superclass_hash_wight if sig2.superclass_hash == sig1.superclass_hash else 0,
+            self.string_literals_count_weight * abs(sig2.string_literals_count - sig1.string_literals_count),
+            self.string_literals_simhash_weight * simhash.num_differing_bits(sig1.string_literals_simhash, sig2.string_literals_simhash),
         ))

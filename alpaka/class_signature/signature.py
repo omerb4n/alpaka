@@ -14,3 +14,5 @@ class ClassSignature:
     implemented_interfaces_count: int
     implemented_interfaces_simhash: int
     superclass_hash: int
+    string_literals_count: int
+    string_literals_simhash: int

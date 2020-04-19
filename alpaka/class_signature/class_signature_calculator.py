@@ -6,6 +6,7 @@ from androguard.core.bytecodes.dvm import Instruction
 
 from alpaka.class_signature.signature import ClassSignature
 from alpaka.class_signature.simhash_utils import calculate_simhash, calculate_shingle_simhash
+from alpaka.class_signature.string_extractor import StringLiteralsExtractor
 from alpaka.obfuscation.types import ObfuscationDetector
 
 
@@ -36,6 +37,8 @@ class ClassSignatureCalculator:
             implemented_interfaces_count=self._get_implemented_interfaces_count(class_analysis),
             implemented_interfaces_simhash=self._calc_implemented_interfaces_simhash(class_analysis),
             superclass_hash=self._calc_superclass_hash(class_analysis),
+            string_literals_count=self._get_string_literals_count(class_analysis),
+            string_literals_simhash=self._get_string_literals_simhash(class_analysis),
         )
 
     @classmethod
@@ -118,3 +121,13 @@ class ClassSignatureCalculator:
         if self._obfuscation_detector.is_obfuscated(class_analysis.extends):
             return 0
         return hash(class_analysis.extends)
+
+    @classmethod
+    def _get_string_literals_count(cls, class_analysis):
+        return len(list(StringLiteralsExtractor.extract_strings(class_analysis)))
+
+    @classmethod
+    def _get_string_literals_simhash(cls, class_analysis):
+        return calculate_simhash(
+            StringLiteralsExtractor.extract_strings(class_analysis)
+        )
