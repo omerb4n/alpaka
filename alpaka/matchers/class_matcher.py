@@ -31,8 +31,21 @@ class ClassMatcher:
         self._classes_pool_matcher = ClassesPoolMatcher(self._old_apk_info, self._new_apk_info)
         self._classes_matches_dict: ClassesMatchesDict = {}
         # TODO: Add a parameter WeightedSignatureDistanceCalculator in the __init__ funciton
-        self._weighted_signature_distance_calculator = WeightedSignatureDistanceCalculator(0.2, 0.2, 0.2, 0.1, 0.1, 0.1,
-                                                                                           0.1)
+        self._weighted_signature_distance_calculator = WeightedSignatureDistanceCalculator(
+            member_count_weight=0.2,
+            method_count_weight=0.2,
+            instructions_count_weight=0.2,
+            members_simhash_weight=0.1,
+            methods_params_simhash_weight=0.1,
+            methods_returns_simhash_weight=0.1,
+            instructions_simhash_weight=0.1,
+            instruction_shingles_simhash_weight=0.1,
+            implemented_interfaces_count_weight=0.2,
+            implemented_interfaces_simhash_weight=0.1,
+            superclass_hash_weight=0.5,
+            string_literals_count_weight=0.2,
+            string_literals_simhash_weight=0.1,
+        )
         self._maximum_signature_matches = maximum_signature_matches
 
     def find_classes_matches(self) -> ClassesMatches:

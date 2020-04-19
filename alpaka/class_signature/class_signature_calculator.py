@@ -5,7 +5,8 @@ from androguard.core.analysis.analysis import ClassAnalysis
 from androguard.core.bytecodes.dvm import Instruction
 
 from alpaka.class_signature.signature import ClassSignature
-from alpaka.class_signature.simhash_utils import calculate_simhash
+from alpaka.class_signature.simhash_utils import calculate_simhash, calculate_shingle_simhash
+from alpaka.class_signature.string_extractor import StringLiteralsExtractor
 from alpaka.obfuscation_detection.base import ObfuscationDetector
 
 
@@ -30,18 +31,22 @@ class ClassSignatureCalculator:
             instructions_count=self._get_instructions_count(class_analysis),
             members_simhash=self._calc_members_simhash(class_analysis),
             methods_params_simhash=self._calc_methods_params_simhash(class_analysis),
-            method_returns_simhash=self._calc_methods_returns_simhash(class_analysis),
+            methods_returns_simhash=self._calc_methods_returns_simhash(class_analysis),
             instructions_simhash=self._calc_instructions_simhash(class_analysis),
+            instruction_shingles_simhash=self._calc_instruction_shingles_simhash(class_analysis),
+            implemented_interfaces_count=self._get_implemented_interfaces_count(class_analysis),
+            implemented_interfaces_simhash=self._calc_implemented_interfaces_simhash(class_analysis),
+            superclass_hash=self._calc_superclass_hash(class_analysis),
+            string_literals_count=self._get_string_literals_count(class_analysis),
+            string_literals_simhash=self._get_string_literals_simhash(class_analysis),
         )
 
     @classmethod
     def _get_member_count(cls, class_analysis: ClassAnalysis) -> int:
-        """
-        This will not count the static fields. see https://github.com/androguard/androguard/issues/554
-        :param class_analysis:
-        :return:
-        """
-        return len(class_analysis.get_fields())
+        return (
+            class_analysis.orig_class.class_data_item.get_instance_fields_size()
+            + class_analysis.orig_class.class_data_item.get_static_fields_size()
+        )
 
     @classmethod
     def _get_method_count(cls, class_analysis: ClassAnalysis) -> int:
@@ -52,10 +57,11 @@ class ClassSignatureCalculator:
         return sum((1 for _instruction in cls.iterate_class_instruction(class_analysis)))
 
     def _calc_members_simhash(self, class_analysis: ClassAnalysis) -> int:
+        members = class_analysis.orig_class.class_data_item.get_fields()
         return calculate_simhash((
-            type_descriptor for member in class_analysis.get_fields()
+            type_descriptor for member in members
             if not self._obfuscation_detector.is_obfuscated(
-                type_descriptor := member.field.get_descriptor()
+                type_descriptor := member.class_name
             )
         ))
 
@@ -89,8 +95,39 @@ class ClassSignatureCalculator:
         return calculate_simhash(
             (instruction.get_name() for instruction in cls.iterate_class_instruction(class_analysis)))
 
+    @classmethod
+    def _calc_instruction_shingles_simhash(cls, class_analysis: ClassAnalysis):
+        return calculate_shingle_simhash(
+            (instruction.get_name() for instruction in cls.iterate_class_instruction(class_analysis)))
+
     @staticmethod
     def iterate_class_instruction(class_analysis: ClassAnalysis) -> Generator[Instruction, None, None]:
         for method in class_analysis.get_vm_class().get_methods():
             for instruction in method.get_instructions():
                 yield instruction
+
+    @classmethod
+    def _get_implemented_interfaces_count(cls, class_analysis) -> int:
+        return len(class_analysis.implements)
+
+    def _calc_implemented_interfaces_simhash(self, class_analysis) -> int:
+        return calculate_simhash((
+            interface_descriptor
+            for interface_descriptor in class_analysis.implements
+            if not self._obfuscation_detector.is_obfuscated(interface_descriptor)
+        ))
+
+    def _calc_superclass_hash(self, class_analysis) -> int:
+        if self._obfuscation_detector.is_obfuscated(class_analysis.extends):
+            return 0
+        return hash(class_analysis.extends)
+
+    @classmethod
+    def _get_string_literals_count(cls, class_analysis):
+        return len(list(StringLiteralsExtractor.extract_strings(class_analysis)))
+
+    @classmethod
+    def _get_string_literals_simhash(cls, class_analysis):
+        return calculate_simhash(
+            StringLiteralsExtractor.extract_strings(class_analysis)
+        )
