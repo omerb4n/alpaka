@@ -1,0 +1,3 @@
+androguard
+simhash-py
+pyenchant

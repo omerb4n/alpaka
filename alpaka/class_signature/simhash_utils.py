@@ -1,5 +1,6 @@
 from typing import Iterable, Generator
 
+# simhash-py package
 import simhash
 
 

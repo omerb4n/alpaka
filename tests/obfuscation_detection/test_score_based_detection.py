@@ -1,4 +1,4 @@
-from alpaka.obfuscation.obfuscation import WordObfuscationDetector, ClassNameObfuscationDetector, \
+from alpaka.obfuscation_detection.score_based_detection import WordObfuscationDetector, ClassNameObfuscationDetector, \
     PackageNameObfuscationDetector
 
 
