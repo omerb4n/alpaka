@@ -48,7 +48,7 @@ class WeightedSignatureDistanceCalculator(SignatureDistanceCalculator):
             self.instruction_shingles_simhash_weight * calculate_distance(sig1.instruction_shingles_simhash, sig2.instruction_shingles_simhash),
             self.implemented_interfaces_count_weight * abs(sig2.implemented_interfaces_count - sig1.implemented_interfaces_count),
             self.implemented_interfaces_simhash_weight * simhash.num_differing_bits(sig1.implemented_interfaces_simhash, sig2.implemented_interfaces_simhash),
-            self.superclass_hash_weight if sig2.superclass_hash == sig1.superclass_hash else 0,
+            self.superclass_hash_weight if sig2.superclass_hash != sig1.superclass_hash else 0,
             self.string_literals_count_weight * abs(sig2.string_literals_count - sig1.string_literals_count),
             self.string_literals_simhash_weight * simhash.num_differing_bits(sig1.string_literals_simhash, sig2.string_literals_simhash),
         ))
