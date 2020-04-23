@@ -13,7 +13,7 @@ class StringLiteralsExtractor:
     """
 
     @classmethod
-    def extract_strings(cls, class_analysis: ClassAnalysis) -> Generator[str]:
+    def extract_strings(cls, class_analysis: ClassAnalysis) -> Generator[str, None, None]:
         for method in class_analysis.orig_class.get_methods():
             method_code = method.get_code()
             if method_code is None:

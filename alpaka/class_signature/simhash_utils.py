@@ -25,7 +25,7 @@ def calculate_shingle_simhash(tokens: Iterable, window: int = 4):
     )
 
 
-def shingle(tokens: Iterable, window: int = 4) -> Generator[list]:
+def shingle(tokens: Iterable, window: int = 4) -> Generator[list, None, None]:
     """
     A generator for a moving window of the provided tokens.
 
