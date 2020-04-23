@@ -43,10 +43,16 @@ class ClassSignatureCalculator:
 
     @classmethod
     def _get_member_count(cls, class_analysis: ClassAnalysis) -> int:
-        return (
-            class_analysis.orig_class.class_data_item.get_instance_fields_size()
-            + class_analysis.orig_class.class_data_item.get_static_fields_size()
-        )
+        try:
+            return (
+                class_analysis.orig_class.class_data_item.get_instance_fields_size()
+                + class_analysis.orig_class.class_data_item.get_static_fields_size()
+            )
+        except AttributeError:
+            # For some reason, some of the classes don't have class_data_item, or have None in it.
+            # It seems that for all of those classes there are no fields
+            # todo: validate this assumption!
+            return 0
 
     @classmethod
     def _get_method_count(cls, class_analysis: ClassAnalysis) -> int:
@@ -57,7 +63,10 @@ class ClassSignatureCalculator:
         return sum((1 for _instruction in cls.iterate_class_instruction(class_analysis)))
 
     def _calc_members_simhash(self, class_analysis: ClassAnalysis) -> int:
-        members = class_analysis.orig_class.class_data_item.get_fields()
+        try:
+            members = class_analysis.orig_class.class_data_item.get_fields()
+        except AttributeError:
+            members = []
         return calculate_simhash((
             type_descriptor for member in members
             if not self._obfuscation_detector.is_obfuscated(
