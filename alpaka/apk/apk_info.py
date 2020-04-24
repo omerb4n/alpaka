@@ -47,6 +47,8 @@ class ApkInfo:
         """
         self._packages_dict = {}
         for class_analysis in self._classes.values():
+            if class_analysis.is_external():
+                continue
             package_name_prefix = PackageInfo.get_parent_package_name_prefix(class_analysis.name)
             if package_name_prefix not in self._packages_dict:
                 self._add_package(package_name_prefix)
