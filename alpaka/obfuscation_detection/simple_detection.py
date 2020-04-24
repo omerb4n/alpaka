@@ -47,7 +47,7 @@ class SimpleObfuscationDetector(ObfuscationDetector):
 
     def _is_all_correct_words(self, class_descriptor):
         return all(
-            len(word) >= 2 and word in self._dictionary
+            len(word) >= 2 and self._dictionary.check(word)
             for word in self._separate_class_descriptor_to_words(class_descriptor)
         )
 
