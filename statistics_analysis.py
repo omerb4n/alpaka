@@ -1,10 +1,14 @@
 import csv
 import json
+import os
 from argparse import ArgumentParser
 from collections import defaultdict
+from pathlib import Path
+
+from matplotlib import pyplot
 
 
-def main(raw_results_file_paths, analyzed_data_csv_path):
+def main(raw_results_file_paths, analyzed_data_csv_path, result_charts_dir):
     correct_distance_counts_per_parameter = defaultdict(lambda: defaultdict(int))
     for raw_results_path in raw_results_file_paths:
         with open(raw_results_path, 'r') as raw_results_file:
@@ -12,7 +16,24 @@ def main(raw_results_file_paths, analyzed_data_csv_path):
         for param_name, param_statistics in raw_results.items():
             for cls in param_statistics.values():
                 correct_distance_counts_per_parameter[param_name][cls[1]] += 1
-    write_csv(correct_distance_counts_per_parameter, analyzed_data_csv_path)
+    if analyzed_data_csv_path is not None:
+        write_csv(correct_distance_counts_per_parameter, analyzed_data_csv_path)
+    if result_charts_dir is not None:
+        Path(result_charts_dir).mkdir(parents=True, exist_ok=True)
+        for param_name, correct_distance_counts in correct_distance_counts_per_parameter.items():
+            plot_graph_from_dict(correct_distance_counts, f'{param_name}_correct_distances', result_charts_dir)
+
+
+def plot_graph_from_dict(dct, graph_name, results_dir):
+    dct = dict(dct)
+    dct.pop(None, None)
+    dct.pop('0', None)
+    dct.pop(0, None)
+    distances, counts = zip(*dct.items())
+    distances = [int(distance) for distance in distances]
+    pyplot.bar(distances, counts)
+    pyplot.title(graph_name)
+    pyplot.savefig(os.path.join(results_dir, graph_name) + '.png')
 
 
 def write_csv(data, file_path):
@@ -25,7 +46,8 @@ def write_csv(data, file_path):
 
 if __name__ == '__main__':
     parser = ArgumentParser()
-    parser.add_argument('analyzed_data_csv_path')
+    parser.add_argument('-c', '--csv-path', dest='analyzed_data_csv_path')
+    parser.add_argument('-b', '--bar-charts-dir', dest='result_charts_dir')
     parser.add_argument('raw_result_files', nargs='+')
     args = parser.parse_args()
-    main(args.raw_result_files, args.analyzed_data_csv_path)
+    main(args.raw_result_files, args.analyzed_data_csv_path, args.result_charts_dir)
