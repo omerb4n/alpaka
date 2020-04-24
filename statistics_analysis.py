@@ -9,6 +9,20 @@ from matplotlib import pyplot
 
 
 def main(raw_results_file_paths, analyzed_data_csv_path, result_charts_dir):
+    correct_distance_counts_per_parameter = calc_correct_distance_counts_per_parameter(raw_results_file_paths)
+    all_distance_counts_per_parameter = calc_all_distance_counts_per_parameter(raw_results_file_paths)
+
+    if analyzed_data_csv_path is not None:
+        write_csv(correct_distance_counts_per_parameter, analyzed_data_csv_path)
+    if result_charts_dir is not None:
+        Path(result_charts_dir).mkdir(parents=True, exist_ok=True)
+        for param_name, correct_distance_counts in correct_distance_counts_per_parameter.items():
+            plot_graph_from_dict(correct_distance_counts, f'{param_name}_correct_distances', result_charts_dir)
+        for param_name, all_distance_counts in all_distance_counts_per_parameter.items():
+            plot_graph_from_dict(all_distance_counts, f'{param_name}_all_distances', result_charts_dir)
+
+
+def calc_correct_distance_counts_per_parameter(raw_results_file_paths):
     correct_distance_counts_per_parameter = defaultdict(lambda: defaultdict(int))
     for raw_results_path in raw_results_file_paths:
         with open(raw_results_path, 'r') as raw_results_file:
@@ -16,12 +30,19 @@ def main(raw_results_file_paths, analyzed_data_csv_path, result_charts_dir):
         for param_name, param_statistics in raw_results.items():
             for cls in param_statistics.values():
                 correct_distance_counts_per_parameter[param_name][cls[1]] += 1
-    if analyzed_data_csv_path is not None:
-        write_csv(correct_distance_counts_per_parameter, analyzed_data_csv_path)
-    if result_charts_dir is not None:
-        Path(result_charts_dir).mkdir(parents=True, exist_ok=True)
-        for param_name, correct_distance_counts in correct_distance_counts_per_parameter.items():
-            plot_graph_from_dict(correct_distance_counts, f'{param_name}_correct_distances', result_charts_dir)
+    return correct_distance_counts_per_parameter
+
+
+def calc_all_distance_counts_per_parameter(raw_results_file_paths):
+    distance_counts_per_parameter = defaultdict(lambda: defaultdict(int))
+    for raw_results_path in raw_results_file_paths:
+        with open(raw_results_path, 'r') as raw_results_file:
+            raw_results = json.load(raw_results_file)
+        for param_name, param_statistics in raw_results.items():
+            for class_statistics in param_statistics.values():
+                for distance, count in class_statistics[0].items():
+                    distance_counts_per_parameter[param_name][distance] += count
+    return distance_counts_per_parameter
 
 
 def plot_graph_from_dict(dct, graph_name, results_dir):
