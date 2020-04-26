@@ -1,14 +1,16 @@
 import csv
 import json
 import os
+import statistics
 from argparse import ArgumentParser
 from collections import defaultdict
+from math import prod
 from pathlib import Path
 
 from matplotlib import pyplot
 
 
-def main(raw_results_file_paths, analyzed_data_csv_path, result_charts_dir, calc_mean):
+def main(raw_results_file_paths, analyzed_data_csv_path, result_charts_dir, calc_mean, calc_optimal_weights):
     correct_distance_counts_per_parameter = calc_correct_distance_counts_per_parameter(raw_results_file_paths)
     all_distance_counts_per_parameter = calc_all_distance_counts_per_parameter(raw_results_file_paths)
     incorrect_distance_counts_per_parameter = calc_incorrect_distance_counts_per_parameter(correct_distance_counts_per_parameter, all_distance_counts_per_parameter)
@@ -23,16 +25,44 @@ def main(raw_results_file_paths, analyzed_data_csv_path, result_charts_dir, calc
             plot_graph_from_dict(all_distance_counts, f'{param_name}_all_distances', result_charts_dir)
         for param_name, incorrect_distance_counts in incorrect_distance_counts_per_parameter.items():
             plot_graph_from_dict(incorrect_distance_counts, f'{param_name}_incorrect_distances', result_charts_dir)
-    if calc_mean:
-        mean_output_lines = []
-        for param_name, correct_distance_counts in correct_distance_counts_per_parameter.items():
-            mean_output_lines.append(f'{param_name}_correct: {calc_mean_from_histogram(correct_distance_counts)}')
-        for param_name, all_distance_counts in all_distance_counts_per_parameter.items():
-            mean_output_lines.append(f'{param_name}_all: {calc_mean_from_histogram(all_distance_counts)}')
-        for param_name, incorrect_distance_counts in incorrect_distance_counts_per_parameter.items():
-            mean_output_lines.append(f'{param_name}_incorrect: {calc_mean_from_histogram(incorrect_distance_counts)}')
-        for line in sorted(mean_output_lines):
-            print(line)
+    if calc_mean or calc_optimal_weights:
+        correct_distances_mean_per_parameter = calc_mean_per_parameter(correct_distance_counts_per_parameter)
+        all_distances_mean_per_parameter = calc_mean_per_parameter(all_distance_counts_per_parameter)
+        if calc_mean:
+            incorrect_distances_mean_per_parameter = calc_mean_per_parameter(incorrect_distance_counts_per_parameter)
+            mean_output_lines = []
+            for param_name, mean in correct_distances_mean_per_parameter.items():
+                mean_output_lines.append(f'{param_name}_correct: {mean}')
+            for param_name, mean in all_distances_mean_per_parameter.items():
+                mean_output_lines.append(f'{param_name}_all: {mean}')
+            for param_name, mean in incorrect_distances_mean_per_parameter.items():
+                mean_output_lines.append(f'{param_name}_incorrect: {mean}')
+            for line in sorted(mean_output_lines):
+                print(line)
+        if calc_optimal_weights:
+            optimal_weights = calc_optimal_weight_per_parameter(all_distances_mean_per_parameter, correct_distances_mean_per_parameter)
+            print('\nOptimal Weights:')
+            for param_name, weight in optimal_weights.items():
+                print(f'{param_name}: {weight}')
+
+
+def calc_optimal_weight_per_parameter(all_distances_mean_per_parameter, correct_distances_mean_per_parameter):
+    optimal_weights = dict()
+    equalizer_constant = prod(all_distances_mean_per_parameter.values())
+    for param_name, correct_distances_mean in correct_distances_mean_per_parameter.items():
+        optimal_weights[param_name] = equalizer_constant / float(correct_distances_mean)
+    normalizer_constant = 10.0 / statistics.mean(optimal_weights.values())
+    return {
+        param_name: weight * normalizer_constant
+        for param_name, weight in optimal_weights.items()
+    }
+
+
+def calc_mean_per_parameter(histogram_per_parameter):
+    return {
+        param_name: calc_mean_from_histogram(histogram)
+        for param_name, histogram in histogram_per_parameter.items()
+    }
 
 
 def calc_correct_distance_counts_per_parameter(raw_results_file_paths):
@@ -106,6 +136,7 @@ if __name__ == '__main__':
     parser.add_argument('-c', '--csv-path', dest='analyzed_data_csv_path')
     parser.add_argument('-p', '--plotted-charts-dir', dest='result_charts_dir')
     parser.add_argument('-m', '--calc-mean', dest='calc_mean', action='store_true')
+    parser.add_argument('-w', '--calc-optimal-weights', dest='calc_optimal_weights', action='store_true')
     parser.add_argument('raw_result_files', nargs='+')
     args = parser.parse_args()
-    main(args.raw_result_files, args.analyzed_data_csv_path, args.result_charts_dir, args.calc_mean)
+    main(args.raw_result_files, args.analyzed_data_csv_path, args.result_charts_dir, args.calc_mean, args.calc_optimal_weights)
