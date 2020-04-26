@@ -3,6 +3,7 @@ from typing import Callable
 
 from alpaka.apk.analyzed_apk import AnalyzedApk
 from alpaka.apk.apk_info import ApkInfo
+from alpaka.class_signature.class_signature_calculator import ClassSignatureCalculator
 from alpaka.encoders.classes_matches_encoder import ClassesMatchesEncoder
 from alpaka.matchers.class_matcher import ClassMatcher
 from alpaka.matchers.classes_matches import ClassesMatches
@@ -17,8 +18,10 @@ class ApkDiffer:
     def __init__(self, old_apk: AnalyzedApk, new_apk: AnalyzedApk,
                  package_name_obfuscation_detector: ObfuscationDetector,
                  class_name_obfuscation_detector: ObfuscationDetector):
-        self._old_apk_info = ApkInfo(old_apk, package_name_obfuscation_detector, class_name_obfuscation_detector)
-        self._new_apk_info = ApkInfo(new_apk, package_name_obfuscation_detector, class_name_obfuscation_detector)
+        signature_calculator = ClassSignatureCalculator(class_name_obfuscation_detector)
+
+        self._old_apk_info = ApkInfo(old_apk, package_name_obfuscation_detector, class_name_obfuscation_detector, signature_calculator)
+        self._new_apk_info = ApkInfo(new_apk, package_name_obfuscation_detector, class_name_obfuscation_detector, signature_calculator)
         self._classes_matches: ClassesMatches = ClassesMatches()
 
     def filter_classes(self, class_filter: Callable):

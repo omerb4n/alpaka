@@ -6,6 +6,7 @@ from alpaka.apk.analyzed_apk import AnalyzedApk
 from alpaka.apk.class_info import ClassInfo
 from alpaka.apk.package_info import PackageInfo
 from alpaka.apk.config import ROOT_PACKAGE
+from alpaka.class_signature.class_signature_calculator import ClassSignatureCalculator
 from alpaka.obfuscation_detection.score_based_detection import ObfuscationDetector
 from alpaka.utils import filter_dict
 
@@ -19,13 +20,15 @@ class ApkInfo:
 
     def __init__(self, analyzed_apk: AnalyzedApk,
                  package_name_obfuscation_detector: ObfuscationDetector,
-                 class_name_obfuscation_detector: ObfuscationDetector):
+                 class_name_obfuscation_detector: ObfuscationDetector,
+                 signature_calculator: ClassSignatureCalculator):
         self._analyzed_apk = analyzed_apk
         self._classes = self._analyzed_apk.analysis.classes
         self._packages_dict: Optional[PackagesDict] = None
 
         self._package_name_obfuscation_detector: ObfuscationDetector = package_name_obfuscation_detector
         self._class_name_obfuscation_detector: ObfuscationDetector = class_name_obfuscation_detector
+        self._signature_calculator = signature_calculator
 
     def filter_classes(self, class_filter):
         """
@@ -75,7 +78,7 @@ class ApkInfo:
         Using the instance's class name obfuscation detector to determine if the name is obfuscated
         """
         is_obfuscated_name = self._class_name_obfuscation_detector.is_obfuscated(class_analysis.name)
-        return ClassInfo(class_analysis, is_obfuscated_name)
+        return ClassInfo(class_analysis, is_obfuscated_name, self._signature_calculator)
 
     @property
     def packages_dict(self) -> PackagesDict:

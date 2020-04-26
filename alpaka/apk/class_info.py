@@ -1,21 +1,23 @@
-from dataclasses import dataclass
+from typing import Optional
 
 from androguard.core.analysis.analysis import ClassAnalysis
 
 from alpaka.class_signature.class_signature_calculator import ClassSignatureCalculator
 from alpaka.class_signature.signature import ClassSignature
-from alpaka.obfuscation_detection.base import DummyObfuscationDetector
 from alpaka.utils import get_domain_name
 
 
-@dataclass
 class ClassInfo:
     analysis: ClassAnalysis
     is_obfuscated_name: bool
-    _signature: ClassSignature = None
+    _signature: Optional[ClassSignature]
+    _signature_calculator: ClassSignatureCalculator
 
-    # TODO: The ClassSignatureCalculator should be configurable! this should be out of the class
-    CLASS_SIGNATURE_CALCULATOR = ClassSignatureCalculator(DummyObfuscationDetector(False))
+    def __init__(self, class_analysis: ClassAnalysis, is_name_obfuscated: bool, signature_calculator: ClassSignatureCalculator):
+        self.analysis = class_analysis
+        self.is_obfuscated_name = is_name_obfuscated
+        self._signature = None
+        self._signature_calculator = signature_calculator
 
     @staticmethod
     def get_class_name(class_name_prefix) -> str:
@@ -31,6 +33,5 @@ class ClassInfo:
     @property
     def signature(self):
         if not self._signature:
-            self._signature = ClassInfo.CLASS_SIGNATURE_CALCULATOR.calculate_class_signature(
-                self.analysis)
+            self._signature = self._signature_calculator.calculate_class_signature(self.analysis)
         return self._signature
