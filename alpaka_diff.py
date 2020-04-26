@@ -4,7 +4,10 @@ import os
 from argparse import ArgumentParser
 from enum import Enum
 
-from termcolor import colored
+from prompt_toolkit.lexers import PygmentsLexer
+from pygments.lexers.diff import DiffLexer
+from pypager.pager import Pager
+from pypager.source import StringSource
 
 
 class Mode(Enum):
@@ -33,14 +36,14 @@ def main():
             continue
 
         try:
-            diff = diff_finder.get_match_diff(user_input)
+            diff_pager = diff_finder.get_match_diff(user_input)
         except IOError as e:
             print(f'Cannot read the code for one of the classes: {e}')
             continue
-        if diff is None:
+        if diff_pager is None:
             print(f'No match found for class {user_input}')
             continue
-        print(diff)
+        diff_pager.run()
 
 
 def print_help_message(apk1_dir, apk2_dir):
@@ -81,7 +84,7 @@ class AlpakaDiffFinder:
             return None
         class_code = self._apk1_class_finder.get_class_code(class_identifier)
         match_code = self._apk2_class_finder.get_class_code(match_identifier)
-        return self._generate_diff(class_identifier, class_code, match_identifier, match_code)
+        return self._create_diff_pager(class_identifier, class_code, match_identifier, match_code)
 
     def get_matching_class(self, class_identifier):
         if self._mode is Mode.JAVA:
@@ -105,23 +108,19 @@ class AlpakaDiffFinder:
         return smali_class_name[1:-1].replace('/', '.')
 
     @classmethod
-    def _generate_diff(cls, class_name, class_code, match_name, match_code):
-        diff_lines = []
-        for line in difflib.unified_diff(
-                class_code.splitlines(keepends=True),
-                match_code.splitlines(keepends=True),
-                fromfile=f'apk 1: {class_name}',
-                tofile=f'apk 2: {match_name}',
-        ):
-            if line.startswith('+'):
-                line = colored(line, 'green')
-            elif line.startswith('-'):
-                line = colored(line, 'red')
-            diff_lines.append(line)
-        if len(diff_lines) > 0:
-            return ''.join(diff_lines)
-        else:
-            return f'No diff between apk 1: {class_name} and apk 2: {match_name}'
+    def _create_diff_pager(cls, class_name, class_code, match_name, match_code):
+        diff = ''.join(difflib.unified_diff(
+            class_code.splitlines(keepends=True),
+            match_code.splitlines(keepends=True),
+            fromfile=f'apk 1: {class_name}',
+            tofile=f'apk 2: {match_name}',
+        ))
+        if diff == '':
+            diff = f'No diff between apk 1: {class_name} and apk 2: {match_name}'
+        pager = Pager()
+        pager_source = StringSource(diff, lexer=PygmentsLexer(DiffLexer))
+        pager.add_source(pager_source)
+        return pager
 
 
 class ClassFileFinder:
