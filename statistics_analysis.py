@@ -11,6 +11,7 @@ from matplotlib import pyplot
 def main(raw_results_file_paths, analyzed_data_csv_path, result_charts_dir):
     correct_distance_counts_per_parameter = calc_correct_distance_counts_per_parameter(raw_results_file_paths)
     all_distance_counts_per_parameter = calc_all_distance_counts_per_parameter(raw_results_file_paths)
+    incorrect_distance_counts_per_parameter = calc_incorrect_distance_counts_per_parameter(correct_distance_counts_per_parameter, all_distance_counts_per_parameter)
 
     if analyzed_data_csv_path is not None:
         write_csv(correct_distance_counts_per_parameter, analyzed_data_csv_path)
@@ -20,6 +21,8 @@ def main(raw_results_file_paths, analyzed_data_csv_path, result_charts_dir):
             plot_graph_from_dict(correct_distance_counts, f'{param_name}_correct_distances', result_charts_dir)
         for param_name, all_distance_counts in all_distance_counts_per_parameter.items():
             plot_graph_from_dict(all_distance_counts, f'{param_name}_all_distances', result_charts_dir)
+        for param_name, incorrect_distance_counts in incorrect_distance_counts_per_parameter.items():
+            plot_graph_from_dict(incorrect_distance_counts, f'{param_name}_incorrect_distances', result_charts_dir)
 
 
 def calc_correct_distance_counts_per_parameter(raw_results_file_paths):
@@ -43,6 +46,18 @@ def calc_all_distance_counts_per_parameter(raw_results_file_paths):
                 for distance, count in class_statistics[0].items():
                     distance_counts_per_parameter[param_name][distance] += count
     return distance_counts_per_parameter
+
+
+def calc_incorrect_distance_counts_per_parameter(correct_distance_counts_per_parameter, all_distance_counts_per_parameter):
+    incorrect_distance_counts_per_parameter = dict()
+    for param_name, all_distance_counts in all_distance_counts_per_parameter.items():
+        incorrect_distance_counts = dict(all_distance_counts)
+        correct_distance_counts = correct_distance_counts_per_parameter.get(param_name)
+        if correct_distance_counts is not None:
+            for distance in incorrect_distance_counts.keys():
+                incorrect_distance_counts[distance] -= correct_distance_counts.get(int(distance), 0)
+        incorrect_distance_counts_per_parameter[param_name] = incorrect_distance_counts
+    return incorrect_distance_counts_per_parameter
 
 
 def plot_graph_from_dict(dct, graph_name, results_dir):
