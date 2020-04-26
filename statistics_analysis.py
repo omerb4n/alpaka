@@ -48,11 +48,11 @@ def calc_all_distance_counts_per_parameter(raw_results_file_paths):
 def plot_graph_from_dict(dct, graph_name, results_dir):
     dct = dict(dct)
     dct.pop(None, None)
-    dct.pop('0', None)
-    dct.pop(0, None)
-    distances, counts = zip(*dct.items())
-    distances = [int(distance) for distance in distances]
-    pyplot.bar(distances, counts)
+    dct = {int(distance): count for distance, count in dct.items()}
+    sorted_dict_items = sorted(dct.items(), key=lambda item: item[0])
+    distances, counts = zip(*sorted_dict_items)
+    pyplot.clf()
+    pyplot.plot(distances, counts)
     pyplot.title(graph_name)
     pyplot.savefig(os.path.join(results_dir, graph_name) + '.png')
 
@@ -68,7 +68,7 @@ def write_csv(data, file_path):
 if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('-c', '--csv-path', dest='analyzed_data_csv_path')
-    parser.add_argument('-b', '--bar-charts-dir', dest='result_charts_dir')
+    parser.add_argument('-p', '--plotted-charts-dir', dest='result_charts_dir')
     parser.add_argument('raw_result_files', nargs='+')
     args = parser.parse_args()
     main(args.raw_result_files, args.analyzed_data_csv_path, args.result_charts_dir)
