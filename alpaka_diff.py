@@ -27,7 +27,7 @@ def main():
     print_help_message(apk1_dir, apk2_dir)
     while True:
         user_input = input()
-        if user_input in ('quit', 'exit'):
+        if user_input in ('quit', 'exit', 'q'):
             return
         if user_input == 'help':
             print_help_message(apk1_dir, apk2_dir)
@@ -53,7 +53,7 @@ def print_help_message(apk1_dir, apk2_dir):
         '\n'
         'Special Commands:\n'
         '- help: print this help message\n'
-        '- exit/quit: close the program\n'
+        '- exit/quit/q: close the program\n'
         '\n'
         'To compare a class from apk 1 to the matching class from apk 2, type the full class identifier\n'
         '(com.foo.Bar for java mode, Lcom/foo/Bar; for smali mode)\n'
