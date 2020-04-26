@@ -17,9 +17,10 @@ class Mode(Enum):
 
 def main():
     matches_file_path, apk1_dir, apk2_dir, mode = parse_arguments()
-    print(apk1_dir, apk2_dir)
     with open(matches_file_path, 'r') as matches_file:
         matches = json.load(matches_file)
+    diff_finder = AlpakaDiffFinder(apk1_dir, apk2_dir, mode, matches)
+
     print_help_message(apk1_dir, apk2_dir)
     while True:
         user_input = input()
@@ -30,20 +31,16 @@ def main():
             continue
         if user_input == '':
             continue
-        original_class_name = user_input
-        if mode is Mode.JAVA:
-            original_class_name = java_class_name_to_smali(original_class_name)
-        matching_class_name = get_matching_class(original_class_name, matches)
-        if matching_class_name is None:
-            print(f'No match found for class {original_class_name}')
-            continue
+
         try:
-            original_class_code_lines = get_class_code_as_lines(original_class_name, apk1_dir, mode)
-            matching_class_code_lines = get_class_code_as_lines(matching_class_name, apk2_dir, mode)
+            diff = diff_finder.get_match_diff(user_input)
         except IOError as e:
             print(f'Cannot read the code for one of the classes: {e}')
             continue
-        print_diff(original_class_name, original_class_code_lines, matching_class_name, matching_class_code_lines)
+        if diff is None:
+            print(f'No match found for class {user_input}')
+            continue
+        print(diff)
 
 
 def print_help_message(apk1_dir, apk2_dir):
@@ -59,14 +56,6 @@ def print_help_message(apk1_dir, apk2_dir):
         '(com.foo.Bar for java mode, Lcom/foo/Bar; for smali mode)\n'
     )
 
-def get_matching_class(class_name, matches):
-    try:
-        class_matches = matches[class_name].items()
-        best_match = min(class_matches, key=lambda x: x[1])
-        return best_match[0]
-    except (KeyError, IndexError, ValueError):
-        return None
-
 
 def parse_arguments():
     parser = ArgumentParser()
@@ -78,55 +67,101 @@ def parse_arguments():
     return args.matches_file, args.apk1_source_dir, args.apk2_source_dir, args.mode
 
 
-def print_diff(original_class_name, original_code_lines, new_class_name, new_code_lines):
-    diff_found = False
-    for line in difflib.unified_diff(
-            original_code_lines,
-            new_code_lines,
-            fromfile=f'apk 1: {original_class_name}',
-            tofile=f'apk 2: {new_class_name}',
-    ):
-        if line.startswith('+'):
-            line = colored(line, 'green')
-        elif line.startswith('-'):
-            line = colored(line, 'red')
-        print(line, end='')
-        diff_found = True
-    if not diff_found:
-        print(f'No diff between apk 1: {original_class_name} and apk 2: {new_class_name}')
+class AlpakaDiffFinder:
+
+    def __init__(self, sources1_path, sources2_path, mode, matches):
+        self._apk1_class_finder = ClassFileFinder(mode, sources1_path)
+        self._apk2_class_finder = ClassFileFinder(mode, sources2_path)
+        self._mode = mode
+        self._matches = matches
+
+    def get_match_diff(self, class_identifier):
+        match_identifier = self.get_matching_class(class_identifier)
+        if match_identifier is None:
+            return None
+        class_code = self._apk1_class_finder.get_class_code(class_identifier)
+        match_code = self._apk2_class_finder.get_class_code(match_identifier)
+        return self._generate_diff(class_identifier, class_code, match_identifier, match_code)
+
+    def get_matching_class(self, class_identifier):
+        if self._mode is Mode.JAVA:
+            class_identifier = self.java_class_identifier_to_smali(class_identifier)
+        try:
+            class_matches = self._matches[class_identifier].items()
+            best_match = min(class_matches, key=lambda x: x[1])[0]
+            if self._mode is Mode.JAVA:
+                best_match = self.smali_class_identifier_to_java(best_match)
+            return best_match
+        except (KeyError, IndexError, ValueError):
+            return None
+
+    @classmethod
+    def java_class_identifier_to_smali(cls, java_class_name):
+        slash_separated = java_class_name.replace('.', '/')
+        return f'L{slash_separated};'
+
+    @classmethod
+    def smali_class_identifier_to_java(cls, smali_class_name):
+        return smali_class_name[1:-1].replace('/', '.')
+
+    @classmethod
+    def _generate_diff(cls, class_name, class_code, match_name, match_code):
+        diff_lines = []
+        for line in difflib.unified_diff(
+                class_code.splitlines(keepends=True),
+                match_code.splitlines(keepends=True),
+                fromfile=f'apk 1: {class_name}',
+                tofile=f'apk 2: {match_name}',
+        ):
+            if line.startswith('+'):
+                line = colored(line, 'green')
+            elif line.startswith('-'):
+                line = colored(line, 'red')
+            diff_lines.append(line)
+        if len(diff_lines) > 0:
+            return ''.join(diff_lines)
+        else:
+            return f'No diff between apk 1: {class_name} and apk 2: {match_name}'
 
 
-def get_class_code_as_lines(class_name, sources_dir, mode):
-    file_path = get_class_file_path(class_name, mode, sources_dir)
-    with open(os.path.join(sources_dir, file_path), 'r') as class_file:
-        return class_file.readlines()
+class ClassFileFinder:
 
+    def __init__(self, mode, sources_dir_path):
+        self._mode = mode
+        self._sources_dir_path = sources_dir_path
 
-def get_class_file_path(class_name, mode, sources_dir):
-    class_file_path = os.path.join(*split_class_name(class_name))
-    if mode is Mode.JAVA:
-        class_file_path += '.java'
-    elif mode is Mode.SMALI:
-        class_file_path = get_smali_file_with_extension(class_file_path, sources_dir)
-    return class_file_path
+    def get_class_code(self, class_identifier):
+        file_path = self.get_file_path_for_class(class_identifier)
+        with open(os.path.join(self._sources_dir_path, file_path), 'r') as class_file:
+            return class_file.read()
 
+    def get_file_path_for_class(self, class_identifier):
+        class_file_path = os.path.join(*self._split_class_identifier(class_identifier))
+        if self._mode is Mode.JAVA:
+            class_file_path += '.java'
+        elif self._mode is Mode.SMALI:
+            class_file_path = self._find_smali_file_by_extensionless_path(class_file_path)
+        return class_file_path
 
-def get_smali_file_with_extension(class_file_path, sources_dir):
-    class_dir, filename_start = os.path.split(class_file_path)
-    filename_start += '.'
-    for possible_filename in os.listdir(os.path.join(sources_dir, class_dir)):
-        if possible_filename.startswith(filename_start):
-            return os.path.join(class_dir, possible_filename)
-    raise IOError('Matching smali file not found')
+    def _find_smali_file_by_extensionless_path(self, incomplete_class_file_path):
+        """
+        Smali file names sometimes have numbered extensions on them if
+        the filesystem doesn't support case sensitivity.
+        Therefore, instead of appending '.smali', we have to search in the relevant directory for a match.
+        :param incomplete_class_file_path: a file path to the smali file, without the .<number>.smali extension
+        :return: the complete file path
+        """
+        class_dir, filename_start = os.path.split(incomplete_class_file_path)
+        filename_start += '.'
+        for possible_filename in os.listdir(os.path.join(self._sources_dir_path, class_dir)):
+            if possible_filename.startswith(filename_start):
+                return os.path.join(class_dir, possible_filename)
+        raise IOError('Matching smali file not found')
 
-
-def split_class_name(class_name):
-    return class_name[1:-1].split('/')
-
-
-def java_class_name_to_smali(java_class_name):
-    slash_separated = java_class_name.replace('.', '/')
-    return f'L{slash_separated};'
+    def _split_class_identifier(self, class_identifier):
+        if self._mode is Mode.SMALI:
+            return class_identifier[1:-1].split('/')
+        return class_identifier.split('.')
 
 
 if __name__ == '__main__':
