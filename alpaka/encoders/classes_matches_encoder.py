@@ -1,7 +1,7 @@
 from json import JSONEncoder
 
-from alpaka.matchers.class_matches import ClassMatches
-from alpaka.matchers.classes_matches import ClassesMatches
+from alpaka.matching.class_matches import ClassMatches
+from alpaka.matching.classes_matches import ClassesMatches
 
 
 class ClassesMatchesEncoder(JSONEncoder):

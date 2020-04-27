@@ -5,8 +5,8 @@ from alpaka.apk.analyzed_apk import AnalyzedApk
 from alpaka.apk.class_pool import GlobalClassPool
 from alpaka.class_signature.class_signature_calculator import ClassSignatureCalculator
 from alpaka.encoders.classes_matches_encoder import ClassesMatchesEncoder
-from alpaka.matchers.class_matcher import ClassMatcher
-from alpaka.matchers.classes_matches import ClassesMatches
+from alpaka.matching.class_matcher import ClassMatcher
+from alpaka.matching.classes_matches import ClassesMatches
 from alpaka.obfuscation_detection.base import ObfuscationDetector
 
 

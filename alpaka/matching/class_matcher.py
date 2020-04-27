@@ -5,9 +5,9 @@ from alpaka.apk.class_pool import GlobalClassPool, ClassPool
 from alpaka.apk.class_info import ClassInfo
 from alpaka.class_signature.distance import WeightedSignatureDistanceCalculator, SignatureDistanceCalculator
 from alpaka.config import MAXIMUM_SIGNATURE_MATCHES
-from alpaka.matchers.class_matches import ClassMatches, ClassMatch
-from alpaka.matchers.classes_matches import ClassesMatchesDict, ClassesMatches
-from alpaka.matchers.classes_pool_matcher import ClassesPoolMatcher
+from alpaka.matching.class_matches import ClassMatches, ClassMatch
+from alpaka.matching.classes_matches import ClassesMatchesDict, ClassesMatches
+from alpaka.matching.classes_pool_matcher import ClassesPoolMatcher
 
 
 class ClassMatcher:

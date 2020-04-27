@@ -1,6 +1,6 @@
 from typing import Dict
 
-from alpaka.matchers.class_matches import ClassMatches
+from alpaka.matching.class_matches import ClassMatches
 
 ClassesMatchesDict = Dict[str, ClassMatches]
 

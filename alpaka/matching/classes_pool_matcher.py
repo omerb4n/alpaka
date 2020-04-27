@@ -2,7 +2,7 @@ from collections import ChainMap
 from typing import Generator
 
 from alpaka.apk.class_pool import GlobalClassPool, PackagesDict, ClassPool
-from alpaka.matchers.classes_pool_match import ClassesPoolMatch
+from alpaka.matching.classes_pool_match import ClassesPoolMatch
 
 
 class ClassesPoolMatcher:
