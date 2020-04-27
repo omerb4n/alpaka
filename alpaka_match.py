@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 
 from alpaka.apk.analyzed_apk import AnalyzedApk
 from alpaka.apk_differ import ApkDiffer
-from alpaka.encoders.classes_matches_encoder import ClassesMatchesEncoder
+from alpaka.encoders.classes_matches_encoder import convert_class_matches_dict_to_output_format
 from alpaka.obfuscation_detection.score_based_detection import PackageNameObfuscationDetector
 from alpaka.obfuscation_detection.simple_detection import SimpleObfuscationDetector
 
@@ -14,8 +14,9 @@ def main():
     apk1 = AnalyzedApk(apk1_path)
     apk2 = AnalyzedApk(apk2_path)
     class_matches = apk_differ.diff(apk1, apk2)
+    output = convert_class_matches_dict_to_output_format(class_matches)
     with open(result_file_path, 'w') as result_file:
-        json.dump(result_file, class_matches, cls=ClassesMatchesEncoder, indent=4)
+        json.dump(result_file, output, indent=4)
 
 
 def parse_arguments():

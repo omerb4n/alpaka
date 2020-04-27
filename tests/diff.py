@@ -3,7 +3,7 @@ from typing import Callable
 
 from alpaka.apk.analyzed_apk import AnalyzedApk
 from alpaka.apk_differ import ApkDiffer
-from alpaka.encoders.classes_matches_encoder import ClassesMatchesEncoder
+from alpaka.encoders.classes_matches_encoder import convert_class_matches_dict_to_output_format
 from alpaka.obfuscation_detection.score_based_detection import ClassNameObfuscationDetector, \
     PackageNameObfuscationDetector
 from tests.apks_config.apk_config import ApkConfig
@@ -19,4 +19,5 @@ def diff(old_apk_config: ApkConfig, new_apk_config: ApkConfig, class_filter: Cal
 
     apk_differ = ApkDiffer(PackageNameObfuscationDetector(), ClassNameObfuscationDetector(), filters)
     matches = apk_differ.diff(old_apk, new_apk)
-    print(json.dumps(matches, cls=ClassesMatchesEncoder, indent=4))
+    matches_output = convert_class_matches_dict_to_output_format(matches)
+    print(json.dumps(matches_output, indent=4))

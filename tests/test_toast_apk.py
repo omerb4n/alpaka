@@ -2,7 +2,7 @@ import json
 
 from alpaka.apk.analyzed_apk import AnalyzedApk
 from alpaka.apk_differ import ApkDiffer
-from alpaka.encoders.classes_matches_encoder import ClassesMatchesEncoder
+from alpaka.encoders.classes_matches_encoder import convert_class_matches_dict_to_output_format
 from alpaka.obfuscation_detection.score_based_detection import PackageNameObfuscationDetector, \
     ClassNameObfuscationDetector
 from tests.apks_config.bye_apk_config import TOAST_BYE_APK_CONFIG
@@ -18,4 +18,5 @@ def test_toast_apk():
 
     apk_differ = ApkDiffer(PackageNameObfuscationDetector(), ClassNameObfuscationDetector(), [android_class_filter()])
     matches = apk_differ.diff(old_apk, new_apk)
-    print(json.dumps(matches, cls=ClassesMatchesEncoder, indent=4))
+    matches_output = convert_class_matches_dict_to_output_format(matches)
+    print(json.dumps(matches_output, indent=4))

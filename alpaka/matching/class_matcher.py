@@ -1,20 +1,24 @@
 import heapq
 
+from alpaka.apk.class_info import ClassInfo
 from alpaka.apk.class_pool import ClassPool
 from alpaka.class_signature.distance import WeightedSignatureDistanceCalculator, SignatureDistanceCalculator
 from alpaka.config import MAXIMUM_SIGNATURE_MATCHES
-from alpaka.matching.class_matches import ClassMatches, ClassMatch
-from alpaka.matching.classes_matches import ClassesMatches
+from alpaka.matching.base import Matcher, MatchingResult, Match
 
 
-class ClassMatcher:
+class ClassMatcher(Matcher[ClassInfo]):
     """
     Responsible to find classes matches between two different class pools.
     A class match is a match between a class in one apk to another class in the other apk.
     The match is done by class name or by similarities (signature) between the classes.
     """
 
-    def __init__(self, maximum_matches_per_class=MAXIMUM_SIGNATURE_MATCHES, signature_distance_calculator=None):
+    def __init__(
+            self,
+            maximum_matches_per_class=MAXIMUM_SIGNATURE_MATCHES,
+            signature_distance_calculator: SignatureDistanceCalculator = None
+    ):
         self.maximum_matches_per_class = maximum_matches_per_class
         if signature_distance_calculator is None:
             signature_distance_calculator = WeightedSignatureDistanceCalculator(
@@ -34,7 +38,7 @@ class ClassMatcher:
             )
         self._signature_distance_calculator = signature_distance_calculator
 
-    def match(self, pool1: ClassPool, pool2: ClassPool, match_by_name: bool = True) -> ClassesMatches:
+    def match(self, pool1: ClassPool, pool2: ClassPool, match_by_name: bool = True) -> MatchingResult[ClassInfo]:
         """
         Iterates through all classes and tries to find matches by name
         Then try to find matches on all the remaining classes pool by signatures distance
@@ -45,7 +49,7 @@ class ClassMatcher:
         if match_by_name:
             class_matches.update(self._match_by_name(pool1, pool2))
         class_matches.update(self._match_by_signature(pool1, pool2))
-        return ClassesMatches(class_matches)
+        return MatchingResult(class_matches, (dict(), dict()))
 
     @classmethod
     def _match_by_name(cls, pool1, pool2):
@@ -57,7 +61,7 @@ class ClassMatcher:
             matching_class = pool2.get(class_key)
             if matching_class is None or matching_class.is_obfuscated_name:
                 continue
-            class_matches[class_key] = ClassMatches(class_info, [ClassMatch(matching_class, 1.0)])
+            class_matches[class_key] = [(Match(class_info, matching_class, 1.0))]
             del pool1[class_key]
             del pool2[class_key]
         return class_matches
@@ -79,8 +83,8 @@ class ClassMatcher:
                 key=lambda distance_per_class: distance_per_class[1]
             )
 
-            class_matches[class_name] = ClassMatches(class_info, [
-                ClassMatch(distance_per_class[0], distance_per_class[1])
-                for distance_per_class in closest_distances_per_class
-            ])
+            class_matches[class_name] = [
+                Match(class_info, matching_class, distance)
+                for matching_class, distance in closest_distances_per_class
+            ]
         return class_matches
