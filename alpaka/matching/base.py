@@ -24,3 +24,12 @@ class Match(Generic[T]):
 class MatchingResult(Generic[T]):
     matches: Mapping[str, Iterable[Match]]
     unmatched: Tuple[Mapping[str, T], Mapping[str, T]]
+
+    def best_match(self, key):
+        return min(self.matches[key], key=lambda m: m.match_rank)
+
+    def best_matches(self):
+        return (
+            self.best_match(key)
+            for key in self.matches.keys()
+        )
