@@ -24,12 +24,10 @@ class GlobalClassPool(ClassPool, DictFilterMixin, Dict[str, ClassInfo]):
     def __init__(
             self,
             analyzed_apk: AnalyzedApk,
-            package_name_obfuscation_detector: ObfuscationDetector,
-            class_name_obfuscation_detector: ObfuscationDetector,
+            obfuscation_detector: ObfuscationDetector,
             signature_calculator: ClassSignatureCalculator
     ):
-        self._package_name_obfuscation_detector: ObfuscationDetector = package_name_obfuscation_detector
-        self._class_name_obfuscation_detector: ObfuscationDetector = class_name_obfuscation_detector
+        self._obfuscation_detector: ObfuscationDetector = obfuscation_detector
         self._signature_calculator = signature_calculator
         super(GlobalClassPool, self).__init__({
             class_name: self._create_class_info(class_analysis)
@@ -49,7 +47,7 @@ class GlobalClassPool(ClassPool, DictFilterMixin, Dict[str, ClassInfo]):
         Initializes a PackageInfo instance,
         Using the instance's package name obfuscation detector to determine if the name is obfuscated
         """
-        is_obfuscated_name = self._package_name_obfuscation_detector.is_obfuscated(package_name_prefix)
+        is_obfuscated_name = self._obfuscation_detector.is_package_name_obfuscated(package_name_prefix)
         return PackageInfo(package_name_prefix, is_obfuscated_name)
 
     def _create_class_info(self, class_analysis: ClassAnalysis) -> ClassInfo:
@@ -57,5 +55,5 @@ class GlobalClassPool(ClassPool, DictFilterMixin, Dict[str, ClassInfo]):
         Initializes a ClassInfo instance,
         Using the instance's class name obfuscation detector to determine if the name is obfuscated
         """
-        is_obfuscated_name = self._class_name_obfuscation_detector.is_obfuscated(class_analysis.name)
+        is_obfuscated_name = self._obfuscation_detector.is_class_name_obfuscated(class_analysis.name)
         return ClassInfo(class_analysis, is_obfuscated_name, self._signature_calculator)

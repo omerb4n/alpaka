@@ -15,21 +15,19 @@ class ApkDiffer:
 
     def __init__(
             self,
-            package_name_obfuscation_detector: ObfuscationDetector,
-            class_name_obfuscation_detector: ObfuscationDetector,
+            obfuscation_detector: ObfuscationDetector,
             filters: Optional[Iterable[Callable]] = None,
     ):
 
-        self._signature_calculator = ClassSignatureCalculator(class_name_obfuscation_detector)
-        self._class_name_obfuscation_detector = class_name_obfuscation_detector
-        self._package_name_obfuscation_detector = package_name_obfuscation_detector
+        self._signature_calculator = ClassSignatureCalculator(obfuscation_detector)
+        self._obfuscation_detector = obfuscation_detector
         self._filters = filters
         if filters is None:
             self._filters = []
 
     def diff(self, apk1: AnalyzedApk, apk2: AnalyzedApk, match_packages: bool = True, match_by_name: bool = True):
-        class_pool1 = GlobalClassPool(apk1, self._package_name_obfuscation_detector, self._class_name_obfuscation_detector, self._signature_calculator)
-        class_pool2 = GlobalClassPool(apk2, self._package_name_obfuscation_detector, self._class_name_obfuscation_detector, self._signature_calculator)
+        class_pool1 = GlobalClassPool(apk1, self._obfuscation_detector, self._signature_calculator)
+        class_pool2 = GlobalClassPool(apk2, self._obfuscation_detector, self._signature_calculator)
         for filter_func in self._filters:
             class_pool1.filter(filter_func)
             class_pool2.filter(filter_func)

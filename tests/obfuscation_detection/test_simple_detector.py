@@ -18,7 +18,7 @@ def test_is_obfuscated(value, expected_result):
     detector._is_external = Mock(side_effect=lambda x: x == 'external')
     detector._is_all_correct_words = Mock(side_effect=lambda x: x == 'correct_words')
 
-    assert detector.is_obfuscated(value) == expected_result
+    assert detector.is_class_name_obfuscated(value) == expected_result
 
 
 def test_is_all_correct_words():
