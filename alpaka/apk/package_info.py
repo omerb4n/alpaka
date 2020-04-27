@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict
+from typing import Dict, Optional
 
 from alpaka.apk.class_info import ClassInfo
 from alpaka.apk.class_pool import ClassPool
@@ -13,7 +13,7 @@ class PackageInfo(ClassPool, Dict):
     Holds and manipulates information about a package -
     """
 
-    def __init__(self, package_name_prefix: str, is_obfuscated_name: bool, classes_dict: ClassPool = None):
+    def __init__(self, package_name_prefix: str, is_obfuscated_name: bool, classes_dict: Optional[ClassPool] = None):
         """
 
         :param package_name_prefix: full name of package (e.g. 'Lcom/example/myapplication')
@@ -21,6 +21,8 @@ class PackageInfo(ClassPool, Dict):
         :param classes_dict: The package's classes.
         Should be a dictionary where the key is the class name and the value is a ClassInfo object
         """
+        if classes_dict is None:
+            classes_dict = dict()
         super(PackageInfo, self).__init__(classes_dict)
         self.name_prefix = package_name_prefix
         self.is_obfuscated_name = is_obfuscated_name
