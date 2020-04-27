@@ -19,10 +19,10 @@ class Mode(Enum):
 
 
 def main():
-    matches_file_path, apk1_dir, apk2_dir, mode = parse_arguments()
+    matches_file_path, apk1_dir, apk2_dir, mode, jadx_mode = parse_arguments()
     with open(matches_file_path, 'r') as matches_file:
         matches = json.load(matches_file)
-    diff_finder = AlpakaDiffFinder(apk1_dir, apk2_dir, mode, matches)
+    diff_finder = AlpakaDiffFinder(apk1_dir, apk2_dir, mode, matches, jadx_mode)
 
     print_help_message(apk1_dir, apk2_dir)
     while True:
@@ -66,15 +66,16 @@ def parse_arguments():
     parser.add_argument('apk1_source_dir', help='The sources directory (java or smali) of the first apk version.')
     parser.add_argument('apk2_source_dir', help='The sources directory (java or smali) of the second apk version.')
     parser.add_argument('mode', type=Mode, choices=list(Mode), help='The compared source type. Either java or smali.')
+    parser.add_argument('-j', '--jadx-naming-mode', dest='jadx_mode', action='store_true', help='Use jadx\'s AnonymousClass prefix.')
     args = parser.parse_args()
-    return args.matches_file, args.apk1_source_dir, args.apk2_source_dir, args.mode
+    return args.matches_file, args.apk1_source_dir, args.apk2_source_dir, args.mode, args.jadx_mode
 
 
 class AlpakaDiffFinder:
 
-    def __init__(self, sources1_path, sources2_path, mode, matches):
-        self._apk1_class_finder = ClassFileFinder(mode, sources1_path)
-        self._apk2_class_finder = ClassFileFinder(mode, sources2_path)
+    def __init__(self, sources1_path, sources2_path, mode, matches, jadx_mode):
+        self._apk1_class_finder = ClassFileFinder(mode, sources1_path, jadx_mode)
+        self._apk2_class_finder = ClassFileFinder(mode, sources2_path, jadx_mode)
         self._mode = mode
         self._matches = matches
 
@@ -125,9 +126,10 @@ class AlpakaDiffFinder:
 
 class ClassFileFinder:
 
-    def __init__(self, mode, sources_dir_path):
+    def __init__(self, mode, sources_dir_path, jadx_mode):
         self._mode = mode
         self._sources_dir_path = sources_dir_path
+        self._jadx_mode = jadx_mode
 
     def get_class_code(self, class_identifier):
         file_path = self.get_file_path_for_class(class_identifier)
@@ -135,7 +137,11 @@ class ClassFileFinder:
             return class_file.read()
 
     def get_file_path_for_class(self, class_identifier):
-        class_file_path = os.path.join(*self._split_class_identifier(class_identifier))
+        identifier_components = self._split_class_identifier(class_identifier)
+        if self._jadx_mode:
+            if identifier_components[-1][0].isnumeric():
+                identifier_components[-1] = 'AnonymousClass' + identifier_components[-1]
+        class_file_path = os.path.join(*identifier_components)
         if self._mode is Mode.JAVA:
             class_file_path += '.java'
         elif self._mode is Mode.SMALI:
