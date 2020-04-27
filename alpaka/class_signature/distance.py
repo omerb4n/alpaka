@@ -36,6 +36,24 @@ class WeightedSignatureDistanceCalculator(SignatureDistanceCalculator):
     string_literals_count_weight: float
     string_literals_simhash_weight: float
 
+    @classmethod
+    def from_weights_json(cls, weights_json):
+        return cls(
+            member_count_weight=weights_json['member_count'],
+            method_count_weight=weights_json['method_count'],
+            instructions_count_weight=weights_json['instructions_count'],
+            members_simhash_weight=weights_json['members_simhash'],
+            methods_params_simhash_weight=weights_json['methods_params_simhash'],
+            methods_returns_simhash_weight=weights_json['methods_returns_simhash'],
+            instructions_simhash_weight=weights_json['instructions_simhash'],
+            instruction_shingles_simhash_weight=weights_json['instruction_shingles_simhash'],
+            implemented_interfaces_count_weight=weights_json['implemented_interfaces_count'],
+            implemented_interfaces_simhash_weight=weights_json['implemented_interfaces_simhash'],
+            superclass_hash_weight=weights_json['superclass_hash'],
+            string_literals_count_weight=weights_json['string_literals_count'],
+            string_literals_simhash_weight=weights_json['string_literals_simhash'],
+        )
+
     def distance(self, sig1: ClassSignature, sig2: ClassSignature) -> float:
         return sum((
             self.member_count_weight * abs(sig2.member_count - sig1.member_count),
