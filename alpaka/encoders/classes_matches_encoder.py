@@ -1,21 +1,18 @@
-from json import JSONEncoder
+from typing import Iterable, Mapping
 
-from alpaka.matchers.class_matches import ClassMatches
-from alpaka.matchers.classes_matches import ClassesMatches
+from alpaka.apk.class_info import ClassInfo
+from alpaka.matching.base import Match
 
 
-class ClassesMatchesEncoder(JSONEncoder):
-    def default(self, o):
-        if isinstance(o, ClassMatches):
-            return self.encode_class_matches(o)
-        if isinstance(o, ClassesMatches):
-            return self.encode_classes_matches(o)
-        super(ClassesMatchesEncoder, self).default(o)
+def convert_class_matches_dict_to_output_format(matches_dict: Mapping[str, Iterable[Match[ClassInfo]]]):
+    return {
+        class_name: _convert_matches_to_output_format(class_matches)
+        for class_name, class_matches in matches_dict.items()
+    }
 
-    @staticmethod
-    def encode_classes_matches(classes_matches: ClassesMatches):
-        return classes_matches.classes_matches_dict
 
-    @staticmethod
-    def encode_class_matches(class_matches: ClassMatches):
-        return {match.class_match.analysis.name: match.match_percentage for match in class_matches.matches}
+def _convert_matches_to_output_format(matches: Iterable[Match]):
+    return {
+        match.item2.analysis.name: match.match_rank
+        for match in matches
+    }

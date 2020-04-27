@@ -23,13 +23,16 @@ class SimpleObfuscationDetector(ObfuscationDetector):
         self._new_analysis = new_analysis
         self._dictionary = dictionary
 
-    def is_obfuscated(self, obj) -> bool:
-        obj = obj.lstrip('[')
-        if self._is_primitive(obj): return False
-        if not self._is_in_both_versions(obj): return True
-        if self._is_external(obj): return False
-        if self._is_all_correct_words(obj): return False
+    def is_class_name_obfuscated(self, class_name) -> bool:
+        class_name = class_name.lstrip('[')
+        if self._is_primitive(class_name): return False
+        if not self._is_in_both_versions(class_name): return True
+        if self._is_external(class_name): return False
+        if self._is_all_correct_words(class_name): return False
         return True
+
+    def is_package_name_obfuscated(self, package_name) -> bool:
+        return not self._is_all_correct_words(package_name)
 
     @classmethod
     def _is_primitive(cls, class_descriptor: str) -> bool:

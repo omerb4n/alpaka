@@ -69,7 +69,7 @@ class ClassSignatureCalculator:
             members = []
         return calculate_simhash((
             type_descriptor for member in members
-            if not self._obfuscation_detector.is_obfuscated(
+            if not self._obfuscation_detector.is_class_name_obfuscated(
                 type_descriptor := member.class_name
             )
         ))
@@ -79,7 +79,7 @@ class ClassSignatureCalculator:
             param_type
             for method in class_analysis.get_methods()
             for param_type in self._get_param_types_from_method_descriptor(method.descriptor)
-            if not self._obfuscation_detector.is_obfuscated(param_type)
+            if not self._obfuscation_detector.is_class_name_obfuscated(param_type)
         ))
 
     @classmethod
@@ -90,7 +90,7 @@ class ClassSignatureCalculator:
     def _calc_methods_returns_simhash(self, class_analysis: ClassAnalysis) -> int:
         return calculate_simhash((
             return_type for method in class_analysis.get_methods()
-            if not self._obfuscation_detector.is_obfuscated(
+            if not self._obfuscation_detector.is_class_name_obfuscated(
                 return_type := self._get_return_type_from_method_descriptor(method.descriptor)
             )
         ))
@@ -123,11 +123,11 @@ class ClassSignatureCalculator:
         return calculate_simhash((
             interface_descriptor
             for interface_descriptor in class_analysis.implements
-            if not self._obfuscation_detector.is_obfuscated(interface_descriptor)
+            if not self._obfuscation_detector.is_class_name_obfuscated(interface_descriptor)
         ))
 
     def _calc_superclass_hash(self, class_analysis) -> int:
-        if self._obfuscation_detector.is_obfuscated(class_analysis.extends):
+        if self._obfuscation_detector.is_class_name_obfuscated(class_analysis.extends):
             return 0
         return hash(class_analysis.extends)
 

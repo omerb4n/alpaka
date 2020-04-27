@@ -18,7 +18,7 @@ def test_is_obfuscated(value, expected_result):
     detector._is_external = Mock(side_effect=lambda x: x == 'external')
     detector._is_all_correct_words = Mock(side_effect=lambda x: x == 'correct_words')
 
-    assert detector.is_obfuscated(value) == expected_result
+    assert detector.is_class_name_obfuscated(value) == expected_result
 
 
 def test_is_all_correct_words():
@@ -26,15 +26,15 @@ def test_is_all_correct_words():
     detector = SimpleObfuscationDetector(Mock(), Mock(), dictionary)
     detector._separate_class_descriptor_to_words = Mock(return_value=['Foo', 'Bar', 'Baz'])
 
-    dictionary.__contains__.return_value = True
+    dictionary.check.return_value = True
     assert detector._is_all_correct_words('')
 
-    dictionary.__contains__.return_value = False
+    dictionary.check.return_value = False
     assert not detector._is_all_correct_words('')
 
-    dictionary.__contains__.side_effect = lambda word: word == 'Foo'
+    dictionary.check.side_effect = lambda word: word == 'Foo'
     assert not detector._is_all_correct_words('')
-    dictionary.__contains__.side_effect = lambda word: word != 'Baz'
+    dictionary.check.side_effect = lambda word: word != 'Baz'
     assert not detector._is_all_correct_words('')
 
 

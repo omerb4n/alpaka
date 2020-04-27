@@ -141,7 +141,7 @@ class UnderscoreNameGrade(GradeSystem):
         return super(UnderscoreNameGrade, self)._calc_score(underscore_split)
 
 
-class PackageNameObfuscationDetector(ObfuscationDetector):
+class PackageNameObfuscationDetector:
     # Word length score
     WORD_BEST_LENGTH = 8
     WORD_WORST_LENGTH = 2
@@ -193,7 +193,7 @@ class PackageNameObfuscationDetector(ObfuscationDetector):
         return not self.grade_system.did_pass(package_name)
 
 
-class ClassNameObfuscationDetector(ObfuscationDetector):
+class ClassNameObfuscationDetector:
     KNOWN_OBFUSCATED_PATTERNS = [r"^AnonymousClass[\d\w]*$"]
     # Word length score
     WORD_BEST_LENGTH = 8
@@ -256,7 +256,7 @@ class ClassNameObfuscationDetector(ObfuscationDetector):
         return False
 
 
-class WordObfuscationDetector(ObfuscationDetector):
+class WordObfuscationDetector:
     # LengthScoreWeight
     BEST_LENGTH = 10
     WORST_LENGTH = 4
@@ -280,3 +280,16 @@ class WordObfuscationDetector(ObfuscationDetector):
 
     def is_obfuscated(self, word: str):
         return not self.word_grade_system.did_pass(word)
+
+
+class ScoreBasedObfuscationDetector(ObfuscationDetector):
+
+    def __init__(self):
+        self._class_name_obfuscation_detector = ClassNameObfuscationDetector()
+        self._package_name_obfuscation_detector = PackageNameObfuscationDetector()
+
+    def is_class_name_obfuscated(self, class_name) -> bool:
+        return self._class_name_obfuscation_detector.is_obfuscated(class_name)
+
+    def is_package_name_obfuscated(self, package_name) -> bool:
+        return self._package_name_obfuscation_detector.is_obfuscated(package_name)
