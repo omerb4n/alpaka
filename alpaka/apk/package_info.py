@@ -3,10 +3,9 @@ from __future__ import annotations
 from typing import Dict
 
 from alpaka.apk.class_info import ClassInfo
+from alpaka.apk.class_pool import ClassPool
 from alpaka.constants import PACKAGE_NAME_SEPARATOR, CLASS_JAVA_KEYWORD
 from alpaka.utils import get_domain_name, get_subdomain
-
-ClassesDict = Dict[str, ClassInfo]
 
 
 class PackageInfo:
@@ -14,7 +13,7 @@ class PackageInfo:
     Holds and manipulates information about a package -
     """
 
-    def __init__(self, package_name_prefix: str, is_obfuscated_name: bool, classes_dict: ClassesDict = None):
+    def __init__(self, package_name_prefix: str, is_obfuscated_name: bool, classes_dict: ClassPool = None):
         """
 
         :param package_name_prefix: full name of package (e.g. 'Lcom/example/myapplication')
@@ -23,7 +22,7 @@ class PackageInfo:
         Should be a dictionary where the key is the class name and the value is a ClassInfo object
         """
         self.name_prefix = package_name_prefix
-        self.classes_dict: ClassesDict = {}
+        self.classes_dict: ClassPool = {}
         if classes_dict:
             self.classes_dict = classes_dict
         self.is_obfuscated_name = is_obfuscated_name

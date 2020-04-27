@@ -1,7 +1,7 @@
 from collections import ChainMap
 from typing import Generator
 
-from alpaka.apk.apk_info import ApkInfo, PackagesDict
+from alpaka.apk.class_pool import GlobalClassPool, PackagesDict, ClassPool
 from alpaka.matchers.classes_pool_match import ClassesPoolMatch
 
 
@@ -16,10 +16,10 @@ class ClassesPoolMatcher:
     it is probably best to try to match only the package's classes.
     """
 
-    def __init__(self, old_apk_info: ApkInfo, new_apk_info: ApkInfo):
+    def __init__(self, old_class_pool: GlobalClassPool, new_class_pool: GlobalClassPool):
         # Shallow copies
-        self._old_packages_dict: PackagesDict = dict(old_apk_info.packages_dict)
-        self._new_packages_dict: PackagesDict = dict(new_apk_info.packages_dict)
+        self._old_packages_dict: PackagesDict = dict(old_class_pool.split_by_package())
+        self._new_packages_dict: PackagesDict = dict(new_class_pool.split_by_package())
 
     def pop_matched_packages_classes_pools(self) -> Generator[ClassesPoolMatch, None, None]:
         """

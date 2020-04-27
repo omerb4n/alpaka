@@ -1,13 +1,12 @@
 import heapq
 from typing import Optional
 
-from alpaka.apk.apk_info import ApkInfo
+from alpaka.apk.class_pool import GlobalClassPool, ClassPool
 from alpaka.apk.class_info import ClassInfo
 from alpaka.class_signature.distance import WeightedSignatureDistanceCalculator, SignatureDistanceCalculator
 from alpaka.config import MAXIMUM_SIGNATURE_MATCHES
 from alpaka.matchers.class_matches import ClassMatches, ClassMatch
 from alpaka.matchers.classes_matches import ClassesMatchesDict, ClassesMatches
-from alpaka.matchers.classes_pool_match import ClassesPool
 from alpaka.matchers.classes_pool_matcher import ClassesPoolMatcher
 
 
@@ -20,8 +19,8 @@ class ClassMatcher:
 
     def __init__(
             self,
-            old_apk_info: ApkInfo,
-            new_apk_info: ApkInfo,
+            old_class_pool: GlobalClassPool,
+            new_class_pool: GlobalClassPool,
             maximum_signature_matches=MAXIMUM_SIGNATURE_MATCHES,
             signature_distance_calculator: Optional[SignatureDistanceCalculator] = None,
             match_by_name: bool = True,
@@ -29,12 +28,12 @@ class ClassMatcher:
         """
         Receives the two apk infos that their classes should be matched
         Before initializing the ClassMatcher, Filtering and packing the classes in both apks is recommend.
-        :param old_apk_info: the older apk
-        :param new_apk_info:
+        :param old_class_pool: the older apk
+        :param new_class_pool:
         """
-        self._old_apk_info = old_apk_info
-        self._new_apk_info = new_apk_info
-        self._classes_pool_matcher = ClassesPoolMatcher(self._old_apk_info, self._new_apk_info)
+        self._old_class_pool = old_class_pool
+        self._new_class_pool = new_class_pool
+        self._classes_pool_matcher = ClassesPoolMatcher(self._old_class_pool, self._new_class_pool)
         self._classes_matches_dict: ClassesMatchesDict = {}
         if signature_distance_calculator is None:
             signature_distance_calculator = WeightedSignatureDistanceCalculator(
@@ -100,8 +99,8 @@ class ClassMatcher:
                 del old_classes_pool[class_key]
                 del new_classes_pool[class_key]
 
-    def _find_classes_matches_by_signature(self, old_classes_pool: ClassesPool,
-                                           new_classes_pool: ClassesPool):
+    def _find_classes_matches_by_signature(self, old_classes_pool: ClassPool,
+                                           new_classes_pool: ClassPool):
         """
         For each class in old_classes_pool find the closest classes in the new_classes_pool.
         Appends the found ClassMatches to self._classes_matches_dict

@@ -1,13 +1,9 @@
 from dataclasses import dataclass
-from typing import ChainMap, Union
 
-from alpaka.apk.class_info import ClassInfo
-from alpaka.apk.package_info import ClassesDict
-
-ClassesPool = Union[ClassesDict, ChainMap[str, ClassInfo]]
+from alpaka.apk.class_pool import ClassPool
 
 
 @dataclass
 class ClassesPoolMatch:
-    old_classes_pool: ClassesPool
-    new_classes_pool: ClassesPool
+    old_classes_pool: ClassPool
+    new_classes_pool: ClassPool
