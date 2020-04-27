@@ -12,4 +12,4 @@ def test_global_class_pool():
     apk = GlobalClassPool(AnalyzedApk(TOAST_HELLO_APK_CONFIG.apk_path, session_path=TOAST_HELLO_APK_CONFIG.session_path),
                           DummyObfuscationDetector(False), DummyObfuscationDetector(True))
     apk.filter(android_class_filter)
-    assert apk.split_by_package()[MAIN_APPLICATION_PACKAGE].classes_dict[MAIN_ACTIVIY]
+    assert apk.split_by_package()[MAIN_APPLICATION_PACKAGE][MAIN_ACTIVIY]

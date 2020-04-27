@@ -8,7 +8,7 @@ from alpaka.constants import PACKAGE_NAME_SEPARATOR, CLASS_JAVA_KEYWORD
 from alpaka.utils import get_domain_name, get_subdomain
 
 
-class PackageInfo:
+class PackageInfo(ClassPool, Dict):
     """
     Holds and manipulates information about a package -
     """
@@ -21,10 +21,8 @@ class PackageInfo:
         :param classes_dict: The package's classes.
         Should be a dictionary where the key is the class name and the value is a ClassInfo object
         """
+        super(PackageInfo, self).__init__(classes_dict)
         self.name_prefix = package_name_prefix
-        self.classes_dict: ClassPool = {}
-        if classes_dict:
-            self.classes_dict = classes_dict
         self.is_obfuscated_name = is_obfuscated_name
 
     def add_class(self, class_info: ClassInfo):
@@ -32,7 +30,7 @@ class PackageInfo:
         Adds the given ClassInfo to the classes_dict
         :param class_info:
         """
-        self.classes_dict[class_info.analysis.name] = class_info
+        self[class_info.analysis.name] = class_info
 
     @staticmethod
     def get_parent_package_name_prefix(package_name_prefix) -> str:

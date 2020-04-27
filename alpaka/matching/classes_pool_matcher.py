@@ -38,8 +38,7 @@ class ClassesPoolMatcher:
                     # For efficiency delete the packages from the local packages dicts
                     old_package = self._old_packages_dict.pop(package_key)
                     del self._new_packages_dict[package_key]
-                    yield ClassesPoolMatch(dict(old_package.classes_dict),
-                                           dict(new_apk_package.classes_dict))
+                    yield ClassesPoolMatch(dict(old_package), dict(new_apk_package))
 
     def get_all_classes_pool_chain_map(self) -> ClassesPoolMatch:
         """
@@ -50,11 +49,6 @@ class ClassesPoolMatcher:
         Changes will actually change the original dictionaries.
         :return: ClassesPoolMatch with pools that hold all the remaining classes
         """
-        old_classes_chain_map = ChainMap(*self.all_classes_dicts_iter(self._old_packages_dict))
-        new_classes_chain_map = ChainMap(*self.all_classes_dicts_iter(self._new_packages_dict))
+        old_classes_chain_map = ChainMap(*self._old_packages_dict.values())
+        new_classes_chain_map = ChainMap(*self._new_packages_dict.values())
         return ClassesPoolMatch(old_classes_chain_map, new_classes_chain_map)
-
-    @staticmethod
-    def all_classes_dicts_iter(packages_dict: PackagesDict):
-        # Don't create a shallow copy dict for efficiency
-        return (package.classes_dict for package in packages_dict.values())
