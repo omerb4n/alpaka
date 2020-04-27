@@ -15,7 +15,7 @@ def main():
     class_matches = apk_differ.diff(apk1, apk2)
     output = convert_class_matches_dict_to_output_format(class_matches)
     with open(result_file_path, 'w') as result_file:
-        json.dump(result_file, output, indent=4)
+        json.dump(output, result_file, indent=4)
 
 
 def parse_arguments():
