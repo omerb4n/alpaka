@@ -1,0 +1,15 @@
+{
+  "member_count": 0.5151936886833067,
+  "method_count": 2.649135029958237,
+  "instructions_count": 0.11334088441113646,
+  "members_simhash": 5.611549513666723,
+  "methods_params_simhash": 0.7278705235703338,
+  "methods_returns_simhash": 1.383512463216041,
+  "instructions_simhash": 0.44413249024422985,
+  "instruction_shingles_simhash": 0.12026531194252381,
+  "implemented_interfaces_count": 90.15889551957868,
+  "implemented_interfaces_simhash": 1.433368768196799,
+  "superclass_hash": 25.04413764432741,
+  "string_literals_count": 1.3863489828740956,
+  "string_literals_simhash": 0.4122491793304923
+}
