@@ -32,9 +32,11 @@ class GlobalClassPool(ClassPool, DictFilterMixin, Dict[str, ClassInfo]):
         })
 
     def split_by_package(self) -> PackagePool:
-        packages_dict = defaultdict(self._create_package_info)
+        packages_dict = dict()
         for class_name, class_info in self.items():
             package_name_prefix = PackageInfo.get_parent_package_name_prefix(class_name)
+            if package_name_prefix not in packages_dict:
+                packages_dict[package_name_prefix] = self._create_package_info(package_name_prefix)
             packages_dict[package_name_prefix].add_class(class_info)
         return packages_dict
 
