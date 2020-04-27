@@ -75,7 +75,7 @@ class ClassMatcher(Matcher[ClassInfo]):
             distances_per_class = {
                 possible_match:
                     self._signature_distance_calculator.distance(class_info.signature, possible_match.signature)
-                for possible_match in pool2.items()
+                for possible_match in pool2.values()
             }
             closest_distances_per_class = heapq.nsmallest(
                 self.maximum_matches_per_class,

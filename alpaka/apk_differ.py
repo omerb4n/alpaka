@@ -43,8 +43,8 @@ class ApkDiffer:
         for package_match in package_match_results.best_matches():
             class_match_results = class_matcher.match(package_match.item1, package_match.item2, match_by_name)
             class_matches.update(class_match_results.matches)
-        remaining_classes1 = ChainMap(*package_match_results.unmatched[0].items())
-        remaining_classes2 = ChainMap(*package_match_results.unmatched[1].items())
+        remaining_classes1 = ChainMap(*package_match_results.unmatched[0].values())
+        remaining_classes2 = ChainMap(*package_match_results.unmatched[1].values())
         class_match_results = class_matcher.match(remaining_classes1, remaining_classes2, False)
         class_matches.update(class_match_results.matches)
         return class_matches
