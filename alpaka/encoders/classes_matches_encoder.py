@@ -13,6 +13,6 @@ def convert_class_matches_dict_to_output_format(matches_dict: Mapping[str, Itera
 
 def _convert_matches_to_output_format(matches: Iterable[Match]):
     return {
-        match.item2: match.match_rank
+        match.item2.analysis.name: match.match_rank
         for match in matches
     }
