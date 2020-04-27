@@ -1,4 +1,4 @@
-from alpaka.apk.class_pool import PackagesDict
+from alpaka.apk.class_pool import PackagePool
 from alpaka.apk.package_info import PackageInfo
 from alpaka.matching.base import Match, Matcher, MatchingResult
 
@@ -10,7 +10,7 @@ class NameBasedPackageMatcher(Matcher[PackageInfo]):
     """
 
     @classmethod
-    def match(cls, pool1: PackagesDict, pool2: PackagesDict) -> MatchingResult[PackageInfo]:
+    def match(cls, pool1: PackagePool, pool2: PackagePool) -> MatchingResult[PackageInfo]:
         pool1 = dict(pool1)
         pool2 = dict(pool2)
         matches = dict()

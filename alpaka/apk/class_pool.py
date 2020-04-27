@@ -10,7 +10,7 @@ from alpaka.class_signature.class_signature_calculator import ClassSignatureCalc
 from alpaka.obfuscation_detection.score_based_detection import ObfuscationDetector
 from alpaka.utils import DictFilterMixin
 
-PackagesDict = Dict[str, PackageInfo]
+PackagePool = Dict[str, PackageInfo]
 
 
 ClassPool = Mapping[str, ClassInfo]
@@ -37,7 +37,7 @@ class GlobalClassPool(ClassPool, DictFilterMixin, Dict[str, ClassInfo]):
             if not class_analysis.is_external()
         })
 
-    def split_by_package(self) -> PackagesDict:
+    def split_by_package(self) -> PackagePool:
         packages_dict = defaultdict(self._create_package_info)
         for class_name, class_info in self.items():
             package_name_prefix = PackageInfo.get_parent_package_name_prefix(class_name)
