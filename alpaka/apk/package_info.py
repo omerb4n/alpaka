@@ -8,7 +8,7 @@ from alpaka.constants import PACKAGE_NAME_SEPARATOR, CLASS_JAVA_KEYWORD
 from alpaka.utils import get_domain_name, get_subdomain
 
 
-class PackageInfo(ClassPool, Dict):
+class PackageInfo(Dict, ClassPool):
     """
     Holds and manipulates information about a package -
     """
