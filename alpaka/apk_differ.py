@@ -33,4 +33,5 @@ class ApkDiffer:
             class_pool1.filter(filter_func)
             class_pool2.filter(filter_func)
         class_matcher = ClassMatcher(class_pool1, class_pool2)
+        # todo: add package matching and class matching per package
         return class_matcher.find_classes_matches()
