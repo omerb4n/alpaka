@@ -1,13 +1,15 @@
 import heapq
-from typing import Optional
+from typing import Optional, ChainMap
 
 from alpaka.apk.class_pool import GlobalClassPool, ClassPool
 from alpaka.apk.class_info import ClassInfo
+from alpaka.apk.package_info import PackageInfo
 from alpaka.class_signature.distance import WeightedSignatureDistanceCalculator, SignatureDistanceCalculator
 from alpaka.config import MAXIMUM_SIGNATURE_MATCHES
+from alpaka.matching.base import Match, MatchingResult
 from alpaka.matching.class_matches import ClassMatches, ClassMatch
 from alpaka.matching.classes_matches import ClassesMatchesDict, ClassesMatches
-from alpaka.matching.classes_pool_matcher import ClassesPoolMatcher
+from alpaka.matching.package_matcher import NameBasedPackageMatcher
 
 
 class ClassMatcher:
@@ -33,7 +35,7 @@ class ClassMatcher:
         """
         self._old_class_pool = old_class_pool
         self._new_class_pool = new_class_pool
-        self._classes_pool_matcher = ClassesPoolMatcher(self._old_class_pool, self._new_class_pool)
+        self._package_matcher = NameBasedPackageMatcher()
         self._classes_matches_dict: ClassesMatchesDict = {}
         if signature_distance_calculator is None:
             signature_distance_calculator = WeightedSignatureDistanceCalculator(
@@ -65,16 +67,32 @@ class ClassMatcher:
         :return: ClassesMatches
         """
         self._classes_matches_dict = {}
-        # For efficiency always use pop_matched_packages_classes_pools first
-        for classes_pool_match in self._classes_pool_matcher.pop_matched_packages_classes_pools():
+        old_packages_dict = self._old_class_pool.split_by_package()
+        new_packages_dict = self._new_class_pool.split_by_package()
+        package_matching_result = self._package_matcher.match(old_packages_dict, new_packages_dict)
+        for package_match in package_matching_result.best_matches():
             if self._match_by_name:
-                self._find_classes_matches_by_name(classes_pool_match.old_classes_pool, classes_pool_match.new_classes_pool)
-            self._find_classes_matches_by_signature(classes_pool_match.old_classes_pool,
-                                                    classes_pool_match.new_classes_pool)
-        all_classes_pool_match = self._classes_pool_matcher.get_all_classes_pool_chain_map()
-        self._find_classes_matches_by_signature(all_classes_pool_match.old_classes_pool,
-                                                all_classes_pool_match.new_classes_pool)
+                self._find_classes_matches_by_name(package_match.item1, package_match.item2)
+            self._find_classes_matches_by_signature(package_match.item1,
+                                                    package_match.item2)
+        all_classes_pool_match = self.get_remaining_classes_pool(package_matching_result)
+        self._find_classes_matches_by_signature(all_classes_pool_match.item1,
+                                                all_classes_pool_match.item2)
         return ClassesMatches(self._classes_matches_dict)
+
+    @classmethod
+    def get_remaining_classes_pool(cls, package_matching_result: MatchingResult[PackageInfo]) -> Match[ClassPool]:
+        """
+        Returns pools that hold all the remaining classes.
+
+        For efficiency, each classes pool is a ChainMap.
+        You should not remove elements or make any changes to this ChainMap.
+        Changes will actually change the original dictionaries.
+        :return: ClassesPoolMatch with pools that hold all the remaining classes
+        """
+        old_classes_chain_map = ChainMap(*package_matching_result.unmatched[0].values())
+        new_classes_chain_map = ChainMap(*package_matching_result.unmatched[1].values())
+        return Match(old_classes_chain_map, new_classes_chain_map, 0.0)
 
     @staticmethod
     def _find_class_match_by_name(new_classes_pool: dict, class_key) -> Optional[ClassMatch]:
