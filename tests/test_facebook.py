@@ -1,8 +1,11 @@
+import json
+
 from androguard.core.analysis.analysis import ClassAnalysis
 
 from alpaka.apk.analyzed_apk import AnalyzedApk
 from alpaka.apk.package_info import PackageInfo
 from alpaka.apk_differ import ApkDiffer
+from alpaka.encoders.classes_matches_encoder import ClassesMatchesEncoder
 from alpaka.obfuscation_detection.score_based_detection import ObfuscationDetector
 from tests.apks_config.facebook_262_0_0_34_117 import FACEBOOK_262_0_0_34_117_APK_CONFIG
 from tests.apks_config.facebook_264_0_0_44_111 import FACEBOOK_264_0_0_44_111_APK_CONFIG
@@ -39,8 +42,6 @@ def test_facebook_apk():
     new_apk = AnalyzedApk(FACEBOOK_264_0_0_44_111_APK_CONFIG.apk_path,
                           session_path=FACEBOOK_264_0_0_44_111_APK_CONFIG.session_path)
 
-    apk_differ = ApkDiffer(old_apk, new_apk, FacebookPackageNameOD(), FacebookClassNameOD())
-    apk_differ.filter_classes(android_class_filter)
-    apk_differ.pack()
-    apk_differ.find_classes_matches()
-    print(apk_differ.get_classes_matches_json(indent=4))
+    apk_differ = ApkDiffer(FacebookPackageNameOD(), FacebookClassNameOD(), [android_class_filter()])
+    matches = apk_differ.diff(old_apk, new_apk)
+    print(json.dumps(matches, cls=ClassesMatchesEncoder, indent=4))
