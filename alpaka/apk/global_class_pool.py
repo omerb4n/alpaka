@@ -12,7 +12,7 @@ from alpaka.obfuscation_detection.base import ObfuscationDetector
 from alpaka.utils import DictFilterMixin
 
 
-class GlobalClassPool(ClassPool, DictFilterMixin, Dict[str, ClassInfo]):
+class GlobalClassPool(DictFilterMixin, Dict[str, ClassInfo], ClassPool):
     """
     A class pool containing all of the classes relevant to the comparison from a single apk
     """
