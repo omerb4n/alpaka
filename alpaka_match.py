@@ -12,7 +12,7 @@ def main():
     apk1 = AnalyzedApk(apk1_path)
     apk2 = AnalyzedApk(apk2_path)
     apk_differ = ApkDiffer(SimpleObfuscationDetector(apk1.analysis, apk2.analysis))
-    class_matches = apk_differ.diff(apk1, apk2)
+    class_matches = apk_differ.diff(apk1, apk2, match_packages=match_packages)
     output = convert_class_matches_dict_to_output_format(class_matches)
     with open(result_file_path, 'w') as result_file:
         json.dump(output, result_file, indent=4)
