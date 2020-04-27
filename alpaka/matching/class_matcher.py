@@ -2,8 +2,8 @@ import heapq
 
 from alpaka.apk.class_info import ClassInfo
 from alpaka.apk.class_pool import ClassPool
-from alpaka.class_signature.distance import WeightedSignatureDistanceCalculator, SignatureDistanceCalculator
-from alpaka.config import MAXIMUM_SIGNATURE_MATCHES, DEFAULT_WEIGHTS
+from alpaka.class_signature.distance import SignatureDistanceCalculator
+from alpaka.config import MAXIMUM_SIGNATURE_MATCHES
 from alpaka.matching.base import Matcher, MatchingResult, Match
 
 
@@ -16,12 +16,10 @@ class ClassMatcher(Matcher[ClassInfo]):
 
     def __init__(
             self,
+            signature_distance_calculator: SignatureDistanceCalculator,
             maximum_matches_per_class=MAXIMUM_SIGNATURE_MATCHES,
-            signature_distance_calculator: SignatureDistanceCalculator = None
     ):
         self.maximum_matches_per_class = maximum_matches_per_class
-        if signature_distance_calculator is None:
-            signature_distance_calculator = WeightedSignatureDistanceCalculator.from_weights_json(DEFAULT_WEIGHTS)
         self._signature_distance_calculator = signature_distance_calculator
 
     def match(self, pool1: ClassPool, pool2: ClassPool, match_by_name: bool = True) -> MatchingResult[ClassInfo]:
