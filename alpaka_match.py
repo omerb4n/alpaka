@@ -8,13 +8,18 @@ from alpaka.obfuscation_detection.simple_detection import SimpleObfuscationDetec
 
 
 def main():
-    apk1_path, apk2_path, result_file_path, match_packages = parse_arguments()
-    apk1 = AnalyzedApk(apk1_path)
-    apk2 = AnalyzedApk(apk2_path)
+    args = parse_arguments()
+    apk1 = AnalyzedApk(args.apk1_path)
+    apk2 = AnalyzedApk(args.apk2_path)
     apk_differ = ApkDiffer(SimpleObfuscationDetector(apk1.analysis, apk2.analysis))
-    class_matches = apk_differ.diff(apk1, apk2, match_packages=match_packages)
+    class_matches = apk_differ.diff(
+        apk1,
+        apk2,
+        match_packages=args.match_packages,
+        match_by_name=args.match_by_name,
+    )
     output = convert_class_matches_dict_to_output_format(class_matches)
-    with open(result_file_path, 'w') as result_file:
+    with open(args.result_file_path, 'w') as result_file:
         json.dump(output, result_file, indent=4)
 
 
@@ -26,8 +31,9 @@ def parse_arguments():
     parser.add_argument('-p', '--no-package-matching', dest='match_packages', action='store_false',
                         help='Disables matching the packages before matching the classes.'
                              ' Not recommended for large apk files.')
-    args = parser.parse_args()
-    return args.apk_1, args.apk_2, args.result_file_path, args.match_packages
+    parser.add_argument('-n', '--no-name-matching', dest='match_by_name', action='store_false',
+                        help='Disables matching the unobfuscated classes by name.')
+    return parser.parse_args()
 
 
 if __name__ == '__main__':
