@@ -9,11 +9,19 @@ class MemoizingObfuscationDetector(ObfuscationDetector):
 
     def __init__(self, inner_detector: ObfuscationDetector):
         self._inner_detector = inner_detector
-        self._detected_identifiers = dict()
+        self._detected_classes = dict()
+        self._detected_packages = dict()
 
-    def is_obfuscated(self, obj) -> bool:
-        if obj in self._detected_identifiers:
-            return self._detected_identifiers[obj]
-        result = self._inner_detector.is_obfuscated(obj)
-        self._detected_identifiers[obj] = result
+    def is_class_name_obfuscated(self, class_name) -> bool:
+        if class_name in self._detected_classes:
+            return self._detected_classes[class_name]
+        result = self._inner_detector.is_class_name_obfuscated(class_name)
+        self._detected_classes[class_name] = result
+        return result
+
+    def is_package_name_obfuscated(self, package_name) -> bool:
+        if package_name in self._detected_packages:
+            return self._detected_packages[package_name]
+        result = self._inner_detector.is_package_name_obfuscated(package_name)
+        self._detected_packages[package_name] = result
         return result

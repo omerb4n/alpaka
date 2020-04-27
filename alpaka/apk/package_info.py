@@ -1,20 +1,19 @@
 from __future__ import annotations
 
-from typing import Dict
+from typing import Dict, Optional
 
 from alpaka.apk.class_info import ClassInfo
+from alpaka.apk.class_pool import ClassPool
 from alpaka.constants import PACKAGE_NAME_SEPARATOR, CLASS_JAVA_KEYWORD
 from alpaka.utils import get_domain_name, get_subdomain
 
-ClassesDict = Dict[str, ClassInfo]
 
-
-class PackageInfo:
+class PackageInfo(Dict, ClassPool):
     """
     Holds and manipulates information about a package -
     """
 
-    def __init__(self, package_name_prefix: str, is_obfuscated_name: bool, classes_dict: ClassesDict = None):
+    def __init__(self, package_name_prefix: str, is_obfuscated_name: bool, classes_dict: Optional[ClassPool] = None):
         """
 
         :param package_name_prefix: full name of package (e.g. 'Lcom/example/myapplication')
@@ -22,10 +21,10 @@ class PackageInfo:
         :param classes_dict: The package's classes.
         Should be a dictionary where the key is the class name and the value is a ClassInfo object
         """
+        if classes_dict is None:
+            classes_dict = dict()
+        super(PackageInfo, self).__init__(classes_dict)
         self.name_prefix = package_name_prefix
-        self.classes_dict: ClassesDict = {}
-        if classes_dict:
-            self.classes_dict = classes_dict
         self.is_obfuscated_name = is_obfuscated_name
 
     def add_class(self, class_info: ClassInfo):
@@ -33,7 +32,7 @@ class PackageInfo:
         Adds the given ClassInfo to the classes_dict
         :param class_info:
         """
-        self.classes_dict[class_info.analysis.name] = class_info
+        self[class_info.analysis.name] = class_info
 
     @staticmethod
     def get_parent_package_name_prefix(package_name_prefix) -> str:
@@ -56,3 +55,6 @@ class PackageInfo:
 
     def __repr__(self):
         return "~Obfuscated" if self.is_obfuscated_name else ""
+
+
+PackagePool = Dict[str, PackageInfo]

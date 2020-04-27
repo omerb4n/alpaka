@@ -1,7 +1,7 @@
 import os
 import shutil
 import subprocess
-from typing import List
+from typing import List, Dict
 
 from alpaka.colors import bcolors
 from alpaka.constants import PACKAGE_NAME_SEPARATOR
@@ -37,8 +37,16 @@ def extract_apk(apk_path, output_path):
     _apktool_decode(apk_path, output_path)
 
 
-def filter_dict(dictionary: dict, filter_function):
-    return {k: v for k, v in dictionary.items() if filter_function(k, v)}
+class DictFilterMixin(Dict):
+
+    """
+    A mixin for a dict subclass implementing filtering in-place
+    """
+
+    def filter(self, filter_function):
+        for key, value in list(self.items()):
+            if not filter_function(key, value):
+                del self[key]
 
 
 def calc_average(l: List):

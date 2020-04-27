@@ -9,8 +9,10 @@ from androguard.misc import AnalyzeAPK
 from simhash.simhash import num_differing_bits
 
 from alpaka.apk.class_info import ClassInfo
+from alpaka.class_signature.class_signature_calculator import ClassSignatureCalculator
 from alpaka.class_signature.distance import SignatureDistanceCalculator
 from alpaka.class_signature.signature import ClassSignature
+from alpaka.obfuscation_detection.base import DummyObfuscationDetector
 
 
 def main(apk1_path, apk2_path, result_path):
@@ -40,16 +42,17 @@ class ParameterStatisticsCalculator:
         self._used_parameters = used_parameters
 
     def calculate_statistics_for_apks(self, apk1_path, apk2_path):
+        signature_calculator = ClassSignatureCalculator(DummyObfuscationDetector())
         apk1_classes = {
             class_analysis.name: class_info
             for class_analysis in AnalyzeAPK(apk1_path)[2].get_classes()
-            if not (class_info := ClassInfo(class_analysis, False)).analysis.is_external()
+            if not (class_info := ClassInfo(class_analysis, False, signature_calculator)).analysis.is_external()
             and not class_info.analysis.name.startswith('Landroid/')
         }
         apk2_classes = {
             class_analysis.name: class_info
             for class_analysis in AnalyzeAPK(apk2_path)[2].get_classes()
-            if not (class_info := ClassInfo(class_analysis, False)).analysis.is_external()
+            if not (class_info := ClassInfo(class_analysis, False, signature_calculator)).analysis.is_external()
             and not class_info.analysis.name.startswith('Landroid/')
         }
         return {
