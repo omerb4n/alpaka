@@ -1,5 +1,5 @@
 from alpaka.apk.analyzed_apk import AnalyzedApk
-from alpaka.apk.class_pool import GlobalClassPool
+from alpaka.apk.global_class_pool import GlobalClassPool
 from alpaka.obfuscation_detection.base import DummyObfuscationDetector
 from tests.apks_config.hello_apk_config import TOAST_HELLO_APK_CONFIG, MAIN_APPLICATION_PACKAGE, \
     MAIN_ACTIVIY

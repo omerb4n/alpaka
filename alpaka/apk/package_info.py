@@ -53,3 +53,6 @@ class PackageInfo(ClassPool, Dict):
 
     def __repr__(self):
         return "~Obfuscated" if self.is_obfuscated_name else ""
+
+
+PackagePool = Dict[str, PackageInfo]

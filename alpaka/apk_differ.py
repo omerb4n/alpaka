@@ -1,7 +1,7 @@
 from typing import Callable, Iterable, Optional, ChainMap
 
 from alpaka.apk.analyzed_apk import AnalyzedApk
-from alpaka.apk.class_pool import GlobalClassPool
+from alpaka.apk.global_class_pool import GlobalClassPool
 from alpaka.class_signature.class_signature_calculator import ClassSignatureCalculator
 from alpaka.matching.class_matcher import ClassMatcher
 from alpaka.matching.package_matcher import NameBasedPackageMatcher

@@ -1,5 +1,4 @@
-from alpaka.apk.class_pool import PackagePool
-from alpaka.apk.package_info import PackageInfo
+from alpaka.apk.package_info import PackageInfo, PackagePool
 from alpaka.matching.base import Match, Matcher, MatchingResult
 
 
