@@ -20,7 +20,7 @@ def main():
     apk1 = AnalyzedApk(args.apk_1)
     apk2 = AnalyzedApk(args.apk_2)
 
-    apk_differ = create_apk_differ(apk1, apk2, args.filter, args.obfuscation_detector)
+    apk_differ = create_apk_differ(apk1, apk2, args.filter, args.obfuscation_detector, args.weights_file)
 
     class_matches = apk_differ.diff(
         apk1,
@@ -31,15 +31,21 @@ def main():
     output_matches(args.result_file_path, class_matches)
 
 
-def create_apk_differ(apk1, apk2, filter_module_path, obfuscation_detector_module_path):
+def create_apk_differ(apk1, apk2, filter_module_path, obfuscation_detector_module_path, weights_file_path):
     filter_funcs = []
     if filter_module_path is not None:
         filter_funcs = [load_filter(filter_module_path)]
+
     obfuscation_detector_type = SimpleObfuscationDetector
     if obfuscation_detector_module_path is not None:
         obfuscation_detector_type = load_obfuscation_detector_type(obfuscation_detector_module_path)
-    apk_differ = ApkDiffer(obfuscation_detector_type(apk1.analysis, apk2.analysis), filter_funcs)
-    return apk_differ
+
+    distance_calculation_weights = None
+    if weights_file_path is not None:
+        with open(weights_file_path, 'r') as weights_file:
+            distance_calculation_weights = json.load(weights_file)
+
+    return ApkDiffer(obfuscation_detector_type(apk1.analysis, apk2.analysis), filter_funcs, distance_calculation_weights)
 
 
 def output_matches(result_file_path, class_matches):
@@ -62,6 +68,8 @@ def parse_arguments():
                         help='An external module containing a class filter. Read full docs for more info.')
     parser.add_argument('-o', '--obfuscation-detector', dest='obfuscation_detector',
                         help='An external module containing an obfuscation detector. Read full docs for more info.')
+    parser.add_argument('-w', '--weights-file', dest='weights_file',
+                        help='A json file containing alternative weights to use in the distance calculations')
     return parser.parse_args()
 
 

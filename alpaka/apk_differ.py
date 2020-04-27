@@ -1,4 +1,4 @@
-from typing import Callable, Iterable, Optional, ChainMap
+from typing import Callable, Iterable, Optional, ChainMap, Mapping
 
 from alpaka.apk.analyzed_apk import AnalyzedApk
 from alpaka.apk.global_class_pool import GlobalClassPool
@@ -19,9 +19,13 @@ class ApkDiffer:
             self,
             obfuscation_detector: ObfuscationDetector,
             filters: Optional[Iterable[Callable]] = None,
+            distance_calculation_weights: Optional[Mapping[str, float]] = None
     ):
-
-        self._signature_distance_calculator = WeightedSignatureDistanceCalculator.from_weights_json(DEFAULT_WEIGHTS)
+        if distance_calculation_weights is None:
+            distance_calculation_weights = DEFAULT_WEIGHTS
+        self._signature_distance_calculator = WeightedSignatureDistanceCalculator.from_weights_json(
+            distance_calculation_weights
+        )
         self._signature_calculator = ClassSignatureCalculator(obfuscation_detector)
         self._obfuscation_detector = obfuscation_detector
         self._filters = filters
