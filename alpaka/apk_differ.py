@@ -1,8 +1,10 @@
-from typing import Callable, Iterable, Optional, ChainMap
+from typing import Callable, Iterable, Optional, ChainMap, Mapping
 
 from alpaka.apk.analyzed_apk import AnalyzedApk
 from alpaka.apk.global_class_pool import GlobalClassPool
 from alpaka.class_signature.class_signature_calculator import ClassSignatureCalculator
+from alpaka.class_signature.distance import WeightedSignatureDistanceCalculator
+from alpaka.config import DEFAULT_WEIGHTS
 from alpaka.matching.class_matcher import ClassMatcher
 from alpaka.matching.package_matcher import NameBasedPackageMatcher
 from alpaka.obfuscation_detection.base import ObfuscationDetector
@@ -17,8 +19,13 @@ class ApkDiffer:
             self,
             obfuscation_detector: ObfuscationDetector,
             filters: Optional[Iterable[Callable]] = None,
+            distance_calculation_weights: Optional[Mapping[str, float]] = None
     ):
-
+        if distance_calculation_weights is None:
+            distance_calculation_weights = DEFAULT_WEIGHTS
+        self._signature_distance_calculator = WeightedSignatureDistanceCalculator.from_weights_json(
+            distance_calculation_weights
+        )
         self._signature_calculator = ClassSignatureCalculator(obfuscation_detector)
         self._obfuscation_detector = obfuscation_detector
         self._filters = filters
@@ -31,7 +38,7 @@ class ApkDiffer:
         for filter_func in self._filters:
             class_pool1.filter(filter_func)
             class_pool2.filter(filter_func)
-        class_matcher = ClassMatcher()
+        class_matcher = ClassMatcher(signature_distance_calculator=self._signature_distance_calculator)
         if not match_packages:
             return class_matcher.match(class_pool1, class_pool2).matches
         package_match_results = self._get_package_match_results(class_pool1, class_pool2)
