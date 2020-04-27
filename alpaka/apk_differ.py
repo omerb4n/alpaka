@@ -47,6 +47,7 @@ class ApkDiffer:
         remaining_classes2 = ChainMap(*package_match_results.unmatched[1].items())
         class_match_results = class_matcher.match(remaining_classes1, remaining_classes2, False)
         class_matches.update(class_match_results.matches)
+        return class_matches
 
     @classmethod
     def _get_package_match_results(cls, class_pool1, class_pool2):
