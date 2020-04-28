@@ -1,4 +1,5 @@
 import heapq
+from typing import Dict
 
 from alpaka.apk.class_info import ClassInfo
 from alpaka.apk.class_pool import ClassPool
@@ -35,8 +36,7 @@ class ClassMatcher(Matcher[ClassInfo]):
         class_matches.update(self._match_by_signature(pool1, pool2))
         return MatchingResult(class_matches, (dict(), dict()))
 
-    @classmethod
-    def _match_by_name(cls, pool1, pool2):
+    def _match_by_name(self, pool1: Dict[str, ClassInfo], pool2: Dict[str, ClassInfo]):
         class_matches = dict()
         # Convert keys to list to avoid RuntimeError: dictionary changed size during iteration
         for class_key, class_info in list(pool1.items()):
@@ -45,7 +45,8 @@ class ClassMatcher(Matcher[ClassInfo]):
             matching_class = pool2.get(class_key)
             if matching_class is None or matching_class.is_obfuscated_name:
                 continue
-            class_matches[class_key] = [(Match(class_info, matching_class, 1.0))]
+            distance = self._signature_distance_calculator.distance(class_info.signature, matching_class.signature)
+            class_matches[class_key] = [(Match(class_info, matching_class, distance))]
             del pool1[class_key]
             del pool2[class_key]
         return class_matches
