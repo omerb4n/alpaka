@@ -3,10 +3,10 @@ import abc
 
 class ObfuscationDetector(abc.ABC):
 
-    def is_class_name_obfuscated(self, class_name) -> bool:
+    def is_class_name_obfuscated(self, class_name: str) -> bool:
         raise NotImplementedError()
 
-    def is_package_name_obfuscated(self, package_name) -> bool:
+    def is_package_name_obfuscated(self, package_name: str) -> bool:
         raise NotImplementedError()
 
 
