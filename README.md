@@ -40,7 +40,7 @@ It takes 2 apk files as input and outputs a matches file in json format.
 | --class-filter         | Used to specify a class filter, which filters out irrelevant classes to decrease runtime. |
 | --obfuscation-detector | Used to specify a custom obfuscation detector.                                            |
 | --weights-file         | Used to specify custom distance calculation weights. For advanced users.                  |
-More information on class filters, obfuscation detectors and distance calculation weights is avalilable in TODO
+More information on class filters, obfuscation detectors and distance calculation weights is avalilable [here](#custom-filters-obfuscation-detectors-and-weights)
 
 #### Alpaka diff
 alpaka_diff.py
@@ -55,6 +55,94 @@ It supports using either smali or java source files, with support for jadx decom
 - The directories given to alpaka diff must contain directly the sources.
 - Alpaka diff currently does not support inner classes in original java syntax.
   Only classes in separate files are supported (OuterClass$InnerClass.java)
+
+#### Custom Filters, Obfuscation Detectors and weights
+Alpaka match allows specifying custom filters, obfuscation detectors and weights to allow better results and/or performance for your specific apks
+
+##### Filters
+Filters are used to limit the classes being matched to a specific set to improve performance.
+
+A filter can be specified by giving alpaka match a python module containing a function named `external_filter`, which accepts 2 parameters: full class name (smali format) and [class info](#the-classinfo-type) .
+
+Example:
+```python
+from alpaka.apk.class_info import ClassInfo
+
+def a_dank_filter(class_name: str, class_info: ClassInfo):
+    return 'meme' in class_name
+
+external_filter = a_dank_filter
+```
+
+##### Obfuscation Detectors
+Obfuscation detectors are objects that can determine whether a class or a package's name is obfuscated.
+Obfuscation detection is used in various ways in the alpaka application. Generally, **low false negatives are more important than low false positives**.
+
+An obfuscation detector can be specified by giving alpaka match a python module containing a class named `ExternalObfuscationDetector`, implementing the interface `ObfuscationDetector`.
+```python
+# file: alpaka.obfuscation_detection.base
+
+class ObfuscationDetector(abc.ABC):
+
+    def is_class_name_obfuscated(self, class_name: str) -> bool:
+        raise NotImplementedError()
+
+    def is_package_name_obfuscated(self, package_name: str) -> bool:
+        raise NotImplementedError()
+```
+Additionally, you can use the decorator `MemoizingObfuscationDetector` (`alpaka.obfuscation_detection.memoization`) to
+add memoization functionality to your obfuscation detector and possibly increase performance.
+
+Example:
+```python
+from alpaka.obfuscation_detection.base import ObfuscationDetector
+from alpaka.obfuscation_detection.memoization import MemoizingObfuscationDetector
+
+@MemoizingObfuscationDetector
+class OptimisticObfuscationDetector(ObfuscationDetector):
+
+    def is_class_name_obfuscated(self, class_name: str) -> bool:
+        return False  # believe in people!
+
+    def is_package_name_obfuscated(self, package_name: str) -> bool:
+        return False
+
+ExternalObfuscationDetector = OptimisticObfuscationDetector
+```
+
+##### Weights
+The class distance calculation process is done by comparing multiple signature parameters,
+and combining the results with different weights for each parameter.
+The default weights can be overridden by giving a json file of the following format:
+```json
+{
+  "member_count": 0.0,
+  "method_count": 0.0,
+  "instructions_count": 0.0,
+  "members_simhash": 0.0,
+  "methods_params_simhash": 0.0,
+  "methods_returns_simhash": 0.0,
+  "instructions_simhash": 0.0,
+  "instruction_shingles_simhash": 0.0,
+  "implemented_interfaces_count": 0.0,
+  "implemented_interfaces_simhash": 0.0,
+  "superclass_hash": 0.0,
+  "string_literals_count": 0.0,
+  "string_literals_simhash": 0.0
+}
+```
+**This feature is only recommended for advanced users!**
+
+##### The ClassInfo Type
+This type represents classes from the apk analyzed and compared by alpkaka.
+Class filter functions accepts parameters of this type.
+The ClassInfo type exposes the following interface:
+```python
+class ClassInfo:
+    analysis: ClassAnalysis  # from androguard
+    is_obfuscated_name: bool
+    signature: ClassSignature
+```
 
 ## Technical overview
 
