@@ -16,6 +16,7 @@ class GlobalClassPool(DictFilterMixin, Dict[str, ClassInfo], ClassPool):
     """
     A class pool containing all of the classes relevant to the comparison from a single apk
     """
+    DEFAULT_IS_OBFUSCATED_CLASS_NAME = True
 
     def __init__(
             self,
@@ -40,6 +41,11 @@ class GlobalClassPool(DictFilterMixin, Dict[str, ClassInfo], ClassPool):
             packages_dict[package_name_prefix].add_class(class_info)
         return packages_dict
 
+    def check_obfuscation(self) -> None:
+        for class_info in self.values():
+            class_info.is_obfuscated_name = self._obfuscation_detector.is_class_name_obfuscated(
+                class_info.analysis.name)
+
     def _create_package_info(self, package_name_prefix) -> PackageInfo:
         """
         Initializes a PackageInfo instance,
@@ -53,5 +59,4 @@ class GlobalClassPool(DictFilterMixin, Dict[str, ClassInfo], ClassPool):
         Initializes a ClassInfo instance,
         Using the instance's class name obfuscation detector to determine if the name is obfuscated
         """
-        is_obfuscated_name = self._obfuscation_detector.is_class_name_obfuscated(class_analysis.name)
-        return ClassInfo(class_analysis, is_obfuscated_name, self._signature_calculator)
+        return ClassInfo(class_analysis, self.DEFAULT_IS_OBFUSCATED_CLASS_NAME, self._signature_calculator)

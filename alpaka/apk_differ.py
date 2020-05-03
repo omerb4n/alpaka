@@ -38,6 +38,8 @@ class ApkDiffer:
         for filter_func in self._filters:
             class_pool1.filter(filter_func)
             class_pool2.filter(filter_func)
+        class_pool1.check_obfuscation()
+        class_pool2.check_obfuscation()
         class_matcher = ClassMatcher(signature_distance_calculator=self._signature_distance_calculator)
         if not match_packages:
             return class_matcher.match(class_pool1, class_pool2).matches
